@@ -1,0 +1,113 @@
+{
+    "interactionModel": {
+        "languageModel": {
+            "invocationName": "name the show",
+            "intents": [
+                {
+                    "name": "AMAZON.CancelIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.HelpIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.StopIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AnswerIntent",
+                    "slots": [
+                        {
+                            "name": "answer",
+                            "type": "Answer"
+                        }
+                    ],
+                    "samples": [
+                        "{answer}"
+                    ]
+                },
+                {
+                    "name": "IDontKnowIntent",
+                    "samples": [
+                        "i don't know",
+                        "i give up",
+                        "not sure",
+                        "i'm not sure"
+                    ]
+                },
+                {
+                    "name": "HintIntent",
+                    "slots": [],
+                    "samples": [
+                        "use a hint",
+                        "give me a hint",
+                        "give me another actor",
+                        "i need a hint"
+                    ]
+                },
+                {
+                    "name": "HintInventoryIntent",
+                    "slots": [],
+                    "samples": [
+                        "how many hints do I have left",
+                        "how many hints do I have",
+                        "how many hints remain",
+                        "how many hints"
+                    ]
+                },
+                {
+                    "name": "CancelPurchaseIntent",
+                    "slots": [],
+                    "samples": [
+                        "cancel my purchase",
+                        "return my hints",
+                        "cancel transaction",
+                        "stop purchase"
+                    ]
+                },
+                {
+                    "name": "BuyHintIntent",
+                    "slots": [],
+                    "samples": [
+                        "purchase more hints",
+                        "purchase hints",
+                        "get more hints",
+                        "buy hints",
+                        "buy more hints",
+                        "buy some hints"
+                    ]
+                },
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
+                },
+                {
+                    "name": "AMAZON.FallbackIntent",
+                    "samples": []
+                }
+            ],
+            "types": [
+                {
+                    "name": "Answer",
+                    "values": [
+                        { "name": {"value": "game of thrones"}},
+                        { "name": {"value": "breaking bad"}},
+                        { "name": {"value": "friends"}},
+                        { "name": {"value": "westworld", "synonyms": ["west world"]}},
+                        { "name": {"value": "parks and recreation", "synonyms": ["parks and wreck"]}},
+                        { "name": {"value": "modern family"}},
+                        { "name": {"value": "brooklyn nine nine"}},
+                        { "name": {"value": "how i met your mother", "synonyms": ["met your mother"]}},
+                        { "name": {"value": "lost"}},
+                        { "name": {"value": "firefly"}}
+                    ]
+                }
+            ]
+        }
+    }
+}
