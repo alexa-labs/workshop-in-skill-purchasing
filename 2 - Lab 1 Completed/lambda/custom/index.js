@@ -1,512 +1,409 @@
-/* eslint-disable  func-names */
-/* eslint-disable  no-console */
+// Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// Licensed under the Amazon Software License
+// http://aws.amazon.com/asl/
 
 const Alexa = require('ask-sdk');
+const i18n = require('i18next');
+const sprintf = require('i18next-sprintf-postprocessor');
 
-const data = [  {"showName": "Game of Thrones", "actor1": "Emilia Clark", "actor2": "Peter Dinklage", "actor3": "Kit Harrington"},
-                {"showName": "Breaking Bad", "actor1": "Bryan Cranston", "actor2": "Aaron Paul", "actor3": "Anna Gunn"},
-                {"showName": "Friends", "actor1": "Jennifer Aniston", "actor2": "Courteney Cox", "actor3": "Lisa Kudrow"},
-                {"showName": "Westworld", "actor1": "Evan Rachel Wood", "actor2": "Jeffrey Wright", "actor3": "Ed Harris"},
-                {"showName": "Parks and Recreation", "actor1": "Amy Poehler", "actor2": "Nick Offerman", "actor3": "Aziz Ansari"},
-                {"showName": "Modern Family", "actor1": "Ed O'Neill", "actor2": "Sofia Vergara", "actor3": "Julie Bowen"},
-                {"showName": "Brooklyn Nine Nine", "actor1": "Andy Samberg", "actor2": "Stephanie Beatriz", "actor3": "Andre Braugher"},
-                {"showName": "How I Met Your Mother", "actor1": "Jason Segel", "actor2": "Cobie Smulders", "actor3": "Neil Patrick Harris"},
-                {"showName": "Lost", "actor1": "Josh Holloway", "actor2": "Evangeline Lilly", "actor3": "Terry O'Quinn"},
-                {"showName": "Firefly", "actor1": "Nathan Fillion", "actor2": "Alan Tudyk", "actor3": "Morena Baccarin"}];
+const data = [
+  {
+    'showName': 'The Man in the High Castle', 'actor1': 'Rupert Evans', 'actor2': 'Alexa Davalos', 'actor3': 'Luke Kleintank',
+  },
+  {
+    'showName': 'Goliath', 'actor1': 'Billy Bob Thornton', 'actor2': 'Tania Raymonde', 'actor3': 'Nina Arianda',
+  },
+  {
+    'showName': 'Bosch', 'actor1': 'Titus Welliver', 'actor2': 'Jamie Hector', 'actor3': 'Amy Aquino',
+  },
+  {
+    'showName': 'Hand of God', 'actor1': 'Ron Perlman', 'actor2': 'Dana Delany', 'actor3': 'Andre Royo',
+  },
+  {
+    'showName': 'Tom Clancy\'s Jack Ryan', 'actor1': 'John Krasinski', 'actor2': 'Wendell Pierce', 'actor3': 'John Hoogenakker',
+  },
+  {
+    'showName': 'The Grand Tour', 'actor1': 'Jeremy Clarkson', 'actor2': 'James May', 'actor3': 'Richard Hammond',
+  },
+  {
+    'showName': 'Transparent', 'actor1': 'Jeffrey Tambor', 'actor2': 'Gaby Hoffmann', 'actor3': 'Amy Landecker',
+  },
+  {
+    'showName': 'The Marevelous Mrs. Maisel', 'actor1': 'Matilda Szydagis', 'actor2': 'Rachel Brosnahan', 'actor3': 'Alex Borstein',
+  },
+  {
+    'showName': 'The Tick', 'actor1': 'Peter Serafinowicz', 'actor2': 'Griffin Newman', 'actor3': 'Jackie Earle Haley',
+  },
+  {
+    'showName': 'Sneaky Pete', 'actor1': 'Giovanni Ribisi', 'actor2': 'Marin Ireland', 'actor3': 'Shane McRae',
+  },
+];
+
+const languageStrings = {
+  'en': require('./languages/en.js'),
+};
 
 const LaunchRequestHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
-    },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        var hintText = "";
-        //IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
-        if (sessionAttributes.hintsAvailable > 0) hintText = "You currently have " + sessionAttributes.hintsAvailable + " hints available to use. ";
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'LaunchRequest';
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    let hintText = '';
+    // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
+    if (sessionAttributes.hintsAvailable > 0) hintText = requestAttributes.t('HINTS_AVAILABLE', sessionAttributes.hintsAvailable);
 
-        const speechText = "Welcome to Name The Show!  I will give you the name of an actor or actress, and you have to tell me what television show I am thinking of. If you can't figure one out, you can purchase hints, and I'll give you the name of another actor from the same show. " + hintText + " Ready for your first question?";
+    const speechText = requestAttributes.t('WELCOME_MESSAGE', hintText);
 
-        return handlerInput.responseBuilder
-        .speak(speechText)
-        .reprompt(speechText)
-        .getResponse();
-    }
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .reprompt(speechText)
+      .getResponse();
+  },
 };
 
 const YesIntentHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-               handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent';
-    },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        
-        //GET RANDOM SHOW FROM OUR DATA.
-        var randomShow = getRandom(0, data.length-1);
-        var show = data[randomShow];
-        sessionAttributes.currentShow = show;
-        //GET RANDOM ACTOR FROM OUR SHOW.
-        var randomActor = getRandom(1, 3);
-        sessionAttributes.currentActors = randomActor.toString();
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'AMAZON.YesIntent';
+  },
+  handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        var speechText = getClue(handlerInput);
+    // GET RANDOM SHOW FROM OUR DATA.
+    const randomShow = getRandom(0, data.length - 1);
+    const show = data[randomShow];
+    sessionAttributes.currentShow = show;
+    // GET RANDOM ACTOR FROM OUR SHOW.
+    const randomActor = getRandom(1, 3);
+    sessionAttributes.currentActors = randomActor.toString();
 
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .getResponse();
-    }
-};
+    const speakOutput = getClue(handlerInput);
+    const repromptOutput = speakOutput;
 
-const BuyHintHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
-    },
-    async handle(handlerInput) {
-        //SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES, BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then(function(res) {
-            const hintpack = res.inSkillProducts.filter(record => record.referenceName == "Five_Hint_Pack");
-            if (hintpack.length > 0 && hintpack[0].purchasable == "PURCHASABLE")  {
-              return handlerInput.responseBuilder
-                .addDirective({
-                  'type': 'Connections.SendRequest',
-                  'name': 'Buy',
-                  'payload': {
-                    'InSkillProduct': {
-                      'productId': hintpack[0].productId
-                    }
-                  },
-                 'token': 'correlationToken'
-                })
-                .getResponse();
-            }
-            else {
-              return handlerInput.responseBuilder
-                .speak('I am sorry. The hint pack is not available for purchase at this time.')
-                .getResponse();
-            }
-          });
-    }
-};
-
-const CancelPurchaseHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-            handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
-    },
-    async handle(handlerInput) {
-        //SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES, BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then(function(res) {
-            const hintpack = res.inSkillProducts.filter(record => record.referenceName == "Five_Hint_Pack");
-            if (hintpack.length > 0 && hintpack[0].purchasable == "PURCHASABLE")  {
-              return handlerInput.responseBuilder
-                .addDirective({
-                  'type': 'Connections.SendRequest',
-                  'name': 'Cancel',
-                  'payload': {
-                    'InSkillProduct': {
-                      'productId': hintpack[0].productId
-                    }
-                  },
-                 'token': 'correlationToken'
-                })
-                .getResponse();
-            }
-            else {
-              return handlerInput.responseBuilder
-                .speak('I am sorry. The hint pack is not available for purchase at this time.')
-                .getResponse();
-            }
-          });
-    }
-};
-
-const BuyHintResponseHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === "Connections.Response" &&
-               (handlerInput.requestEnvelope.request.name === "Upsell" ||
-                handlerInput.requestEnvelope.request.name === "Buy");
-    },
-    async handle(handlerInput) {
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        //REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
-        if (persistentAttributes.currentSession != undefined) {
-            sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
-            sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
-        }
-        console.log("SESSION ATTRIBUTES = " + JSON.stringify(sessionAttributes));
-       
-        var speechText = "";
-        
-        //IF THE USER DECLINED THE PURCHASE.
-        if (handlerInput.requestEnvelope.request.payload.purchaseResult == 'DECLINED') {
-            speechText = "No hints for now.  Got it. " + getClue(handlerInput);
-        }
-        //IF THE USER SUCCEEDED WITH THE PURCHASE.
-        else if (handlerInput.requestEnvelope.request.payload.purchaseResult == 'ACCEPTED') {
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            if (sessionAttributes.currentActors != undefined && sessionAttributes.currentActors.length != 3) {
-                useHint(handlerInput);
-                var randomActor = getRandomActor(sessionAttributes.currentActors);
-                sessionAttributes.currentActors += randomActor.toString();
-            }
-            speechText = "Thanks for buying some hints! " + getClue(handlerInput);
-        }
-        //IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
-        else if (handlerInput.requestEnvelope.request.payload.purchaseResult == 'ERROR') {
-            speechText = "It looks like we are unable to sell hints right now.  Sorry.  Maybe you'll get it this time anyways. " + getClue(handlerInput);
-        }
-
-        //CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
-        persistentAttributes.currentSession = undefined;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-
-        return handlerInput.responseBuilder
-            .speak(speechText)
-            .reprompt(speechText)
-            .getResponse();
-    }
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const AnswerHandler = {
-    canHandle(handlerInput) {
+  canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-           (handlerInput.requestEnvelope.request.intent.name === 'AnswerIntent' ||
-            handlerInput.requestEnvelope.request.intent.name === "AMAZON.FallbackIntent");
-    },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        
-        var speechText = "I'm sorry.  That is not the show I'm thinking of.  You can guess again, or say I Don't Know.  If you would like a hint, just say give me a hint.";
-        //IF THE USER'S ANSWER MATCHED ONE OF THE SLOT VALUES, THEY WERE CORRECT.
-        if (isER_SUCCESS_MATCH("answer", handlerInput)) {
-            if (handlerInput.requestEnvelope.request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name.toLowerCase() === sessionAttributes.currentShow.showName.toLowerCase()) {
-                speechText = "That is correct!  I was thinking of the show " + sessionAttributes.currentShow.showName + ".  Would you like to try another question?";
-            }
-        }
+      (handlerInput.requestEnvelope.request.intent.name === 'AnswerIntent' ||
+        handlerInput.requestEnvelope.request.intent.name === 'AMAZON.FallbackIntent');
+  },
+  handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
+    let speakOutput = requestAttributes.t('NOT_CORRECT');
+    // IF THE USER'S ANSWER MATCHED ONE OF THE SLOT VALUES, THEY WERE CORRECT.
+    if (isErSuccessMatch('answer', handlerInput)) {
+      if (handlerInput.requestEnvelope.request.intent.slots.answer.resolutions.resolutionsPerAuthority[0].values[0].value.name.toLowerCase()
+        === sessionAttributes.currentShow.showName.toLowerCase()) {
+        speakOutput = requestAttributes.t('CORRECT_ANSWER', sessionAttributes.currentShow.showName);
+      }
     }
+
+    const repromptOutput = speakOutput;
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const HintInventoryHandler = {
-    canHandle(handlerInput) {
+  canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-           handlerInput.requestEnvelope.request.intent.name === 'HintInventoryIntent';
-    },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        
-        var speechText = "You currently have " + sessionAttributes.hintsAvailable + " hints available.  Are you ready for your next question?";
+      handlerInput.requestEnvelope.request.intent.name === 'HintInventoryIntent';
+  },
+  handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-    }
+    const speakOutput = requestAttributes.t('REPLAY_PROMPT', sessionAttributes.hintsAvailable);
+    const repromptOutput = speakOutput;
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const IDontKnowHandler = {
-    canHandle(handlerInput) {
+  canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-           handlerInput.requestEnvelope.request.intent.name === 'IDontKnowIntent';
-    },
-    handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        
-        var speechText = "OK.  That was a tough one.  The show I was thinking of was " + sessionAttributes.currentShow.showName + ".  Would you like to try another question?";
+      handlerInput.requestEnvelope.request.intent.name === 'IDontKnowIntent';
+  },
+  handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-    }
+    const speakOutput = requestAttributes.t('GAVE_UP', sessionAttributes.currentShow.showName);
+    const repromptOutput = speakOutput;
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const HintHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-               handlerInput.requestEnvelope.request.intent.name === 'HintIntent';
-    },
-    async handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'HintIntent';
+  },
+  async handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    let speakOutput = '';
+    let repromptOutput = '';
 
-        //IF THE USER HAS ALREADY USED TWO HINTS ON THIS PUZZLE, DON'T LET THEM USE ANOTHER.  WE DON'T HAVE MORE INFORMATION TO OFFER THEM.
-        if (sessionAttributes.currentActors.length === 3) {
-            var speechText = "You have already used two clues on this show.  We don't have any more clues for you. " + getClue(handlerInput);
+    if (sessionAttributes.hintsAvailable > 0) {
+      // IF THE USER HAS AVAILABLE HINTS, USE ONE.
+      useHint(handlerInput);
+      console.log(`CURRENT ACTOR = ${sessionAttributes.currentActors}`);
+      const randomActor = getRandomActor(sessionAttributes.currentActors);
+      console.log(`RANDOM ACTOR = ${randomActor}`);
+      sessionAttributes.currentActors += randomActor.toString();
+      speakOutput = requestAttributes.t('NEW_CLUE', getClue(handlerInput));
+      repromptOutput = speakOutput;
 
-            return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-        }
-        //IF THE USER HAS AVAILABLE HINTS, USE ONE.
-        else if (sessionAttributes.hintsAvailable > 0) {
-            useHint(handlerInput);
-            console.log("CURRENT ACTOR = " + sessionAttributes.currentActors);
-            var randomActor = getRandomActor(sessionAttributes.currentActors);
-            console.log("RANDOM ACTOR = " + randomActor);
-            sessionAttributes.currentActors += randomActor.toString();
-            var speechText = "OK.  I've added an actor to your clues.  Here it is. " + getClue(handlerInput);
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt(repromptOutput)
+        .getResponse();
+    } else {
+      speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
+      repromptOutput = speakOutput;
 
-            return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-        }
-        //OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
-        else {
-            //SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES, BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-            const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-            const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-            persistentAttributes.currentSession = sessionAttributes;
-            handlerInput.attributesManager.savePersistentAttributes();            
-            
-            const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-            return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then(function(res) {
-                const hintpack = res.inSkillProducts.filter(record => record.referenceName == "Five_Hint_Pack");
-                if (hintpack.length > 0 && hintpack[0].purchasable == "PURCHASABLE")  {
-                return handlerInput.responseBuilder
-                        .addDirective({
-                            'type': 'Connections.SendRequest',
-                            'name': 'Upsell',
-                            'payload': {
-                            'InSkillProduct': {
-                                'productId': hintpack[0].productId
-                            },
-                            'upsellMessage': "You don't currently have any hints available.  Would you like to know more about the five hint pack?"
-                            },
-                        'token': 'correlationToken'  
-                        })
-                        .getResponse();
-                }
-                else {
-                return handlerInput.responseBuilder
-                    .speak('I am sorry. That hint pack is not available for purchase at this time.')
-                    .getResponse();
-                }
-            });
-        }
-        
-        var speechText = "";
-
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-    },
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt(repromptOutput)
+        .getResponse();
+    }
+  },
 };
 
 const HelpIntentHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-               handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
-    },
-    handle(handlerInput) {
-        const speechText = 'I give you the name of an actor or actress, and you have to tell me what television show I am thinking of.  You can buy hints if you need the name of a second or third actor...just ask!  Are you ready for a question?';
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'AMAZON.HelpIntent';
+  },
+  handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    const speakOutput = requestAttributes.t('HELP_PROMPT');
+    const repromptOutput = speakOutput;
 
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .reprompt(speechText)
-               .getResponse();
-    },
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+  },
 };
 
 const CancelAndStopIntentHandler = {
-    canHandle(handlerInput) {
-        return (handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-               (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent' ||
-                handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent' ||
-                handlerInput.requestEnvelope.request.intent.name === 'AMAZON.NoIntent')) ||
-                (handlerInput.requestEnvelope.request.type === "Connections.Response" &&
-                handlerInput.requestEnvelope.request.name === "Cancel" &&
-                handlerInput.requestEnvelope.request.payload.purchaseResult == 'ACCEPTED');
-    },
-    handle(handlerInput) {
-        const speechText = 'Goodbye!';
+  canHandle(handlerInput) {
+    return (handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent' ||
+        handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent' ||
+        handlerInput.requestEnvelope.request.intent.name === 'AMAZON.NoIntent')) ||
+      (handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+        handlerInput.requestEnvelope.request.name === 'Cancel' &&
+        handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED');
+  },
+  handle(handlerInput) {
+    const speechText = 'Goodbye!';
 
-        return handlerInput.responseBuilder
-               .speak(speechText)
-               .getResponse();
-    }
+    return handlerInput.responseBuilder
+      .speak(speechText)
+      .getResponse();
+  },
 };
 
 const SessionEndedRequestHandler = {
-    canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
-    },
-    handle(handlerInput) {
-        console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
-        return handlerInput.responseBuilder.getResponse();
-    }
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'SessionEndedRequest';
+  },
+  handle(handlerInput) {
+    console.log(`Session ended with reason: ${handlerInput.requestEnvelope.request.reason}`);
+    return handlerInput.responseBuilder.getResponse();
+  },
 };
 
 const ErrorHandler = {
-    canHandle() {
-        return true;
-    },
-    handle(handlerInput, error) {
-        console.log(`Error handled: ${error.message}`);
-        console.log(`Error stack: ${error.stack}`);
+  canHandle() {
+    return true;
+  },
+  handle(handlerInput, error) {
+    console.log(`Error handled: ${error.message}`);
+    console.log(`Error stack: ${error.stack}`);
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        return handlerInput.responseBuilder
-        .speak('Something seems to be broken.  Can you try that again?')
-        .reprompt('Something seems to be broken.  Can you try that again?')
+    try {
+      return handlerInput.responseBuilder
+        .speak(requestAttributes.t('ERROR_MESSAGE'))
+        .reprompt(requestAttributes.t('ERROR_MESSAGE'))
         .getResponse();
-    },
+    } catch (err) {
+      console.log(`The ErrorHandler encountered an error: ${err}`);
+      // this is fixed text because it handles the scenario where the i18n doesn't work correctly
+      const speakOutput = 'This skill encountered an error.  Please contact the developer.';
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .getResponse();
+    }
+  },
 };
 
-function getRandom(min, max){
-    return Math.floor(Math.random() * (max-min+1)+min);
+
+function getRandom(min, max) {
+  return Math.floor((Math.random() * ((max - min) + 1)) + min);
 }
 
-function getRandomActor(currentActor)
-{
-    console.log("CURRENT ACTOR = " + currentActor);
-    switch(currentActor.toString())
-    {
-        case "1": case "13": case "31": 
-            console.log("RETURN 2.");
-            return 2;
-        case "2": case "12": case "21":
-            console.log("RETURN 3.");
-            return 3;
-        case "3": case "23": case "32":
-            console.log("RETURN 1.");
-            return 1;
-    }
+function getRandomActor(currentActor) {
+  console.log(`CURRENT ACTOR = ${currentActor}`);
+  switch (currentActor.toString()) {
+    case '1': case '13': case '31':
+      console.log('RETURN 2.');
+      return 2;
+    case '2': case '12': case '21':
+      console.log('RETURN 3.');
+      return 3;
+    case '3': case '23': case '32':
+      console.log('RETURN 1.');
+      return 1;
+    default:
+      // should not get here
+      console.log('RETURN 0');
+      return 0;
+  }
 }
 
 async function useHint(handlerInput) {
-    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    
-    sessionAttributes.hintsAvailable -= 1;
-    persistentAttributes.hintsUsed += 1;
-    handlerInput.attributesManager.savePersistentAttributes();
+  const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+  const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+  sessionAttributes.hintsAvailable -= 1;
+  persistentAttributes.hintsUsed += 1;
+  handlerInput.attributesManager.savePersistentAttributes();
 }
 
 function getClue(handlerInput) {
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    var show = sessionAttributes.currentShow;
-    var actors = sessionAttributes.currentActors;
-    if (show === undefined || actors === undefined) return " Are you ready for a question? ";
+  const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+  const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-    var actor = actors.split("");
-    var actorString = "";
-    var reference = "this person";
+  const show = sessionAttributes.currentShow;
+  const actors = sessionAttributes.currentActors;
+  if (show === undefined || actors === undefined) return requestAttributes.t('ARE_YOU_READY');
 
-    for (var i = 0;i<actor.length;i++)
-    {
-        if (i != 0) {
-            actorString += ", and ";
-            reference = "these people";
-        }
-        actorString += show["actor" + actor[i]];
+  const actor = actors.split('');
+  let actorString = '';
+  let reference = 'this person';
+
+  for (let i = 0; i < actor.length; i += 1) {
+    if (i !== 0) {
+      actorString += ', and ';
+      reference = 'these people';
     }
+    actorString += show['actor' + actor[i]];
+  }
 
-    return "Guess the show I'm thinking of, that stars " + reference + ": <break time='.5s'/> " + actorString;
+  return requestAttributes.t('GAME_QUESTION', reference, actorString);
 }
 
-function isER_SUCCESS_MATCH(slot, handlerInput) {
-    if ((handlerInput) &&
-        (handlerInput.requestEnvelope) &&
-        (handlerInput.requestEnvelope.request) &&
-        (handlerInput.requestEnvelope.request.intent) &&
-        (handlerInput.requestEnvelope.request.intent.slots) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot]) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0]) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status.code) &&
-        (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status.code === "ER_SUCCESS_MATCH")) return true;
-    return false;
+function isErSuccessMatch(slot, handlerInput) {
+  if ((handlerInput) &&
+    (handlerInput.requestEnvelope) &&
+    (handlerInput.requestEnvelope.request) &&
+    (handlerInput.requestEnvelope.request.intent) &&
+    (handlerInput.requestEnvelope.request.intent.slots) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot]) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0]) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status.code) &&
+    (handlerInput.requestEnvelope.request.intent.slots[slot].resolutions.resolutionsPerAuthority[0].status.code === 'ER_SUCCESS_MATCH')) return true;
+  return false;
 }
 
-async function checkInventory(handlerInput)
-{
-    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    if (persistentAttributes.hintsUsed === undefined) persistentAttributes.hintsUsed = 0;
-    if (persistentAttributes.hintsPurchased === undefined) persistentAttributes.hintsPurchased = 0;
-    
-    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+async function checkInventory(handlerInput) {
+  const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+  const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+  if (persistentAttributes.hintsUsed === undefined) persistentAttributes.hintsUsed = 0;
+  if (persistentAttributes.hintsPurchased === undefined) persistentAttributes.hintsPurchased = 0;
+}
 
-    return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then(function(res) {
-        if (res.inSkillProducts.length > 0) {
-            const hintpack = res.inSkillProducts[0];
-            const hintsPurchased = (hintpack.activeEntitlementCount * 5);  // x5 because each purchase contains five hints. 
-                                                                                 // Will differ per skill/product implementation
-
-            if (persistentAttributes.hintsPurchased > hintsPurchased) {
-                //THIS CAN HAPPEN IF A CUSTOMER RETURNS AN ACCIDENTAL PURCHASE.
-                //YOU SHOULD RESET THEIR TOTALS TO REFLECT THAT RETURN.
-                persistentAttributes.hintsPurchased = hintsPurchased;
-
-                if (persistentAttributes.hintsUsed > hintsPurchased) {
-                    //IF THE USER HAS USED MORE HINTS THAN THEY HAVE PURCHASED, SET THEIR TOTAL "USED" TO THE TOTAL "PURCHASED."
-                    persistentAttributes.hintsUsed = hintsPurchased;
-                }
-            }
-            else if (persistentAttributes.hintsPurchased < hintsPurchased) {
-                //THIS SHOULDN'T HAPPEN UNLESS WE FORGOT TO MANAGE OUR INVENTORY PROPERLY.
-                persistentAttributes.hintsPurchased = hintsPurchased;
-            }
-        }
-
-        sessionAttributes.hintsAvailable = persistentAttributes.hintsPurchased - persistentAttributes.hintsUsed;
-        handlerInput.attributesManager.savePersistentAttributes();
+// Finding the locale of the user
+const LocalizationInterceptor = {
+  process(handlerInput) {
+    const localizationClient = i18n.use(sprintf).init({
+      lng: handlerInput.requestEnvelope.request.locale,
+      resources: languageStrings,
     });
-}
-
-const RequestLog = {
-    async process(handlerInput) {
-        console.log("REQUEST ENVELOPE = " + JSON.stringify(handlerInput.requestEnvelope));
-        await checkInventory(handlerInput);
-        return;
-    }
+    localizationClient.localize = function localize() {
+      const args = arguments;
+      const values = [];
+      for (let i = 1; i < args.length; i += 1) {
+        values.push(args[i]);
+      }
+      const value = i18n.t(args[0], {
+        returnObjects: true,
+        postProcess: 'sprintf',
+        sprintf: values,
+      });
+      if (Array.isArray(value)) {
+        return value[Math.floor(Math.random() * value.length)];
+      }
+      return value;
+    };
+    const attributes = handlerInput.attributesManager.getRequestAttributes();
+    attributes.t = function translate(...args) {
+      return localizationClient.localize(...args);
+    };
+  },
 };
+
+const LogIncomingRequestInterceptor = {
+  async process(handlerInput) {
+    console.log(`REQUEST ENVELOPE = ${JSON.stringify(handlerInput.requestEnvelope)}`);
+  },
+};
+
+const CheckInventoryInterceptor = {
+  async process(handlerInput) {
+    await checkInventory(handlerInput);
+  },
+};
+
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
 exports.handler = skillBuilder
-.addRequestHandlers(
+  .addRequestHandlers(
     LaunchRequestHandler,
     HelpIntentHandler,
     YesIntentHandler,
     AnswerHandler,
     HintHandler,
-    BuyHintHandler,
-    BuyHintResponseHandler,
     IDontKnowHandler,
     HintInventoryHandler,
     CancelAndStopIntentHandler,
-    CancelPurchaseHandler,
-    SessionEndedRequestHandler
-)
-.addErrorHandlers(ErrorHandler)
-.addRequestInterceptors(RequestLog)
-.withTableName("Consumables")
-.withAutoCreateTable(true)
-.lambda();
+    SessionEndedRequestHandler,
+  )
+  .addErrorHandlers(ErrorHandler)
+  .addRequestInterceptors(
+    LogIncomingRequestInterceptor,
+    LocalizationInterceptor,
+    CheckInventoryInterceptor,
+  )
+  .withTableName('NameTheShow')
+  .withAutoCreateTable(true)
+  .lambda();
