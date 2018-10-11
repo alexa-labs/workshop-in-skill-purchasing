@@ -51,6 +51,8 @@ const LaunchRequestHandler = {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     let hintText = '';
+    // SET DEFAULT NUMBER OF HINTS PER USER SESSION
+    sessionAttributes.hintsAvailable = 2;
     // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
     if (sessionAttributes.hintsAvailable > 0) hintText = requestAttributes.t('HINTS_AVAILABLE', sessionAttributes.hintsAvailable);
 
@@ -288,12 +290,8 @@ function getRandomActor(currentActor) {
 }
 
 async function useHint(handlerInput) {
-  const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
   const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
   sessionAttributes.hintsAvailable -= 1;
-  persistentAttributes.hintsUsed += 1;
-  handlerInput.attributesManager.savePersistentAttributes();
 }
 
 function getClue(handlerInput) {
@@ -334,13 +332,6 @@ function isErSuccessMatch(slot, handlerInput) {
   return false;
 }
 
-async function checkInventory(handlerInput) {
-  const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-  const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-  if (persistentAttributes.hintsUsed === undefined) persistentAttributes.hintsUsed = 0;
-  if (persistentAttributes.hintsPurchased === undefined) persistentAttributes.hintsPurchased = 0;
-}
-
 // Finding the locale of the user
 const LocalizationInterceptor = {
   process(handlerInput) {
@@ -377,12 +368,6 @@ const LogIncomingRequestInterceptor = {
   },
 };
 
-const CheckInventoryInterceptor = {
-  async process(handlerInput) {
-    await checkInventory(handlerInput);
-  },
-};
-
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
@@ -402,8 +387,5 @@ exports.handler = skillBuilder
   .addRequestInterceptors(
     LogIncomingRequestInterceptor,
     LocalizationInterceptor,
-    CheckInventoryInterceptor,
   )
-  .withTableName('NameTheShow')
-  .withAutoCreateTable(true)
   .lambda();
