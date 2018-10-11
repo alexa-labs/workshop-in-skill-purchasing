@@ -18,15 +18,11 @@
               "imdb"
             ],
             "name": "Name The Show",
-            "smallIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/168a/3ca30f0a5c44471ca642c369b5dd328f/APP_ICON?versionId=o6tMZ2T3dPIWhOeh4_KRquD4aE.N0tjb&AWSAccessKeyId=AKIAIEYXX6DHY7O4XWMA&Expires=1536070848&Signature=Ey6qs7nNqrXMfANwNafC8Dn2cwI%3D",
-            "description": "This is a game for anyone that watches television.  We will give you the name of an actor, and you have to tell us which show we are thinking of.  Easy, right?  It's harder than you think.  If you run into trouble, you can always purchase hints, which will give you a second or third actor from the same show as clues.  Think you know television?  Good luck!",
-            "largeIconUri": "https://s3.amazonaws.com/CAPS-SSE/echo_developer/7999/b621b68c816444b1ab6bd0a2e5cd99ec/APP_ICON_LARGE?versionId=y5yBTyaroVQpnbo9S1i5RUtHOXGvA0D0&AWSAccessKeyId=AKIAIEYXX6DHY7O4XWMA&Expires=1536070848&Signature=4%2FaGJAjqhQMTw5zlRGO32tfGmXY%3D"
+            "description": "This is a game for anyone that watches television.  We will give you the name of an actor, and you have to tell us which show we are thinking of.  Easy, right?  It's harder than you think.  If you run into trouble, you can always purchase hints, which will give you a second or third actor from the same show as clues.  Think you know television?  Good luck!"
           }
         },
-        "isAvailableWorldwide": true,
         "testingInstructions": "This is a sample skill that we (the Alexa team) will be making the source code available for other developers to review and use.  This submission is to make sure that it passes certification.\n\nStart the skill, and it will present you with the name of an actor or actress.  You have to guess the show that the skill is thinking of.  If you get it wrong, you can continue guessing, or ask for a hint.\n\nUsers can buy 5 hints for $0.99.  Each question has two additional hints available, so after two hints, it should stop them from using additional hints, and force the user to get it correct or give up.",
-        "category": "KNOWLEDGE_AND_TRIVIA",
-        "distributionCountries": []
+        "category": "KNOWLEDGE_AND_TRIVIA"
       },
       "apis": {
         "custom": {
@@ -35,14 +31,7 @@
           }
         }
       },
-      "manifestVersion": "1.0",
-      "privacyAndCompliance": {
-        "allowsPurchases": true,
-        "isExportCompliant": true,
-        "containsAds": false,
-        "isChildDirected": false,
-        "usesPersonalInfo": false
-      }
+      "manifestVersion": "1.0"
     }
   }
   
