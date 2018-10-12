@@ -1,6 +1,11 @@
 ## Workshop In Skill Purchasing
 
-A sample skill which demonstrates the use of consumables within an Alexa skill. 
+This workshop covers buildling a sample skill which uses In-Skill Purchasing, specifically consumable products.
+
+The workshop is broken up into three labs.
+[Lab 1](./1%20-%20Lab$201%20Resources/README.md)
+[Lab 2](./3%20-%20Lab$202%20Resources/README.md)
+[Lab 3](./5%20-%20Lab$203%20Resources/README.md)
 
 ## License
 

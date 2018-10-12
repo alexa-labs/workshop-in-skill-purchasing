@@ -168,3 +168,5 @@ i18n Updates
     NEW_CLUE: 'OK.  I\'ve added an actor to your clues.  Here it is. %s',
     UPSELL_MESSAGE: 'You don\'t currently have any hints available.  Would you like to know more about the five hint pack?',
     CURRENTLY_UNAVAILABLE: 'I am sorry. That hint pack is not available for purchase at this time.',
+
+Continue the workshop in [Lab 3](./../5%20-%20Lab$203%20Resources/README.md)
