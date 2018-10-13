@@ -57,6 +57,28 @@
                     ]
                 },
                 {
+                    "name": "CancelPurchaseIntent",
+                    "slots": [],
+                    "samples": [
+                        "cancel my purchase",
+                        "return my hints",
+                        "cancel transaction",
+                        "stop purchase"
+                    ]
+                },
+                {
+                    "name": "BuyHintIntent",
+                    "slots": [],
+                    "samples": [
+                        "purchase more hints",
+                        "purchase hints",
+                        "get more hints",
+                        "buy hints",
+                        "buy more hints",
+                        "buy some hints"
+                    ]
+                },
+                {
                     "name": "AMAZON.YesIntent",
                     "samples": []
                 },
