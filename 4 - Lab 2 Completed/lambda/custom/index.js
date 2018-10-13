@@ -91,6 +91,108 @@ const YesIntentHandler = {
   },
 };
 
+const BuyHintHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
+  },
+  async handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+    return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+      const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+      if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+        return handlerInput.responseBuilder
+          .addDirective({
+            'type': 'Connections.SendRequest',
+            'name': 'Buy',
+            'payload': {
+              'InSkillProduct': {
+                'productId': hintpack[0].productId,
+              },
+            },
+            'token': 'correlationToken',
+          })
+          .getResponse();
+      }
+      return handlerInput.responseBuilder
+        .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+        .getResponse();
+    });
+  },
+};
+
+const CancelPurchaseHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
+  },
+  async handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+    return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+      const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+      if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+        return handlerInput.responseBuilder
+          .addDirective({
+            'type': 'Connections.SendRequest',
+            'name': 'Cancel',
+            'payload': {
+              'InSkillProduct': {
+                'productId': hintpack[0].productId,
+              },
+            },
+            'token': 'correlationToken',
+          })
+          .getResponse();
+      }
+      return handlerInput.responseBuilder
+        .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+        .getResponse();
+    });
+  },
+};
+
+const BuyHintResponseHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+      (handlerInput.requestEnvelope.request.name === 'Upsell' ||
+        handlerInput.requestEnvelope.request.name === 'Buy');
+  },
+  async handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+    let speakOutput = '';
+
+    // IF THE USER DECLINED THE PURCHASE.
+    if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'DECLINED') {
+      speakOutput = requestAttributes.t('NO_HINTS_FOR_NOW', getClue(handlerInput));
+    } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED') {
+      // IF THE USER SUCCEEDED WITH THE PURCHASE.
+      if (sessionAttributes.currentActors !== undefined
+        && sessionAttributes.currentActors.length !== 3) {
+        useHint(handlerInput);
+        const randomActor = getRandomActor(sessionAttributes.currentActors);
+        sessionAttributes.currentActors += randomActor.toString();
+      }
+      speakOutput = requestAttributes.t('THANK_YOU', getClue(handlerInput));
+    } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ERROR') {
+      // IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
+      speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
+    }
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(speakOutput)
+      .getResponse();
+  },
+};
+
 const AnswerHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
@@ -192,15 +294,31 @@ const HintHandler = {
         .speak(speakOutput)
         .reprompt(repromptOutput)
         .getResponse();
-    } else {
-      speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
-      repromptOutput = speakOutput;
-
-      return handlerInput.responseBuilder
-        .speak(speakOutput)
-        .reprompt(repromptOutput)
-        .getResponse();
     }
+    // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+    return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+      const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+      if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+        return handlerInput.responseBuilder
+          .addDirective({
+            'type': 'Connections.SendRequest',
+            'name': 'Upsell',
+            'payload': {
+              'InSkillProduct': {
+                'productId': hintpack[0].productId,
+              },
+              'upsellMessage': requestAttributes.t('UPSELL_MESSAGE'),
+            },
+            'token': 'correlationToken',
+          })
+          .getResponse();
+      }
+      return handlerInput.responseBuilder
+        .speak(requestAttributes.t('CURRENTLY_UNAVAILABLE'))
+        .getResponse();
+    });
   },
 };
 
@@ -392,6 +510,9 @@ exports.handler = skillBuilder
     HintInventoryHandler,
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
+    BuyHintHandler,
+    BuyHintResponseHandler,
+    CancelPurchaseHandler,
   )
   .addErrorHandlers(ErrorHandler)
   .addRequestInterceptors(
