@@ -168,7 +168,17 @@ const HintHandler = {
     let speakOutput = '';
     let repromptOutput = '';
 
-    if (sessionAttributes.hintsAvailable > 0) {
+    // IF THE USER HAS ALREADY USED TWO HINTS ON THIS PUZZLE, DON'T LET THEM USE ANOTHER.
+    // WE DON'T HAVE MORE INFORMATION TO OFFER THEM.
+    if (sessionAttributes.currentActors.length === 3) {
+      speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
+      repromptOutput = speakOutput;
+
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt(repromptOutput)
+        .getResponse();
+    } else if (sessionAttributes.hintsAvailable > 0) {
       // IF THE USER HAS AVAILABLE HINTS, USE ONE.
       useHint(handlerInput);
       console.log(`CURRENT ACTOR = ${sessionAttributes.currentActors}`);
