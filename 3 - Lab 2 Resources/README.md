@@ -1,6 +1,6 @@
 # Lab 2
 
-Objectives
+### Objectives
 * Update VUI
 * Add Upsell to Skill Code
 * Add Upsell to Skill Code
@@ -169,4 +169,17 @@ i18n Updates
     UPSELL_MESSAGE: 'You don\'t currently have any hints available.  Would you like to know more about the five hint pack?',
     CURRENTLY_UNAVAILABLE: 'I am sorry. That hint pack is not available for purchase at this time.',
 
+### Lab 2 Recap
+
+Congrats!  By following these steps you should have accomplished these goals:
+* 
+
+* Update VUI
+* Add Upsell to Skill Code
+* Add Upsell to Skill Code
+* Add Hint Use to Skill Code
+
+
 Continue the workshop in [Lab 3](./../5%20-%20Lab$203%20Resources/README.md)
+
+Having trouble?  Not sure you're on the right path? Check out [Completed Lab 2](./../4%20-%20Lab%202%20Completed/)

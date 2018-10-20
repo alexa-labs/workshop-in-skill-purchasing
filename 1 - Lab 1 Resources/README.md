@@ -1,5 +1,10 @@
 # Lab 1
 
+### Objectives
+* Setup Prerequisties
+* Deploy Base Workshop Skill
+* Create and deploy a Consumable In-Skill Product
+
 ## Task 1. Setup Prerequisites
 
 1. Amazon Developer Account
@@ -10,7 +15,7 @@
 
 1. Visit https://developer.amazon.com in your browser.
 1. Log in using an existing set of credentials or create a new one.
-1. Be sure to enter all the company informaiton.
+1. Be sure to enter all the company information.
 
 ### Amazon Web Services (AWS) Account
 
@@ -26,21 +31,21 @@ The ASK CLI is required to complete this lab.  If you do not have it setup on yo
 
 If you already have the ASK CLI working, you can skip to the next section.
 
-> TODO: Need to verify labels/steps
 1. Sign in to your AWS Account
 1. Navigate to Cloud9
 1. Create an environment
 1. Accept the defaults and click Next
 1. Review and click Create Environment
 1. Wait a few minutes while the environemnt is created.
-1. Once the environment is ready, enter the command ```npm install ask-cli -g``` to install the ASK CLI.
-1. Configure the ASK CLI by entering the command ```ask init --no-browser```.
-1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://link.to.info.about.temporary.credentials) to learn more about Temporary Credentials.
-1. Click the link which is generated.  This will open a new tab in your browser.  You will need to sign in to your Amazon Developer account.
+1. Once the environment is ready, enter the command `npm install ask-cli -g` to install the ASK CLI.
+1. Configure the ASK CLI by entering the command `ask init --no-browser`.
+1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://docs.aws.amazon.com/cloud9/latest/user-guide/auth-and-access-control.html#auth-and-access-control-temporary-managed-credentials) to learn more about Temporary Credentials.
+1. Click the link which is generated.  Click **Open** in the pop-up menu.  This will open a new tab in your browser.  You will need to sign in to your Amazon Developer account.
 1. Once you grant permissions, a code will appear in the browser. Copy this code.
 1. Switch back to the Cloud9 terminal.  Paste the code at the prompt.
 1. If you have more than one Vendor ID associated with your login, select the one you want to use.
-1. Now that the ASK CLI is installed and configured, there's one last step to get it to work with Cloud9 Temporary Credentials.  Enter this command ```ASK_DEPLOY_ROLE_PREFIX="Cloud9"```.  This will allow the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
+> If your Vendor ID cannot be retrieved (error message is 'call list-vendors error' / 401 / 'You are not authorized to access this operation'), it typically means you haven't fully created your Developer Account.  Return to https://developer.amazon.com/alexa-skills-kit and finish providing the requested data.
+1. Now that the ASK CLI is installed and configured, there's one last step to get it to work with Cloud9 Temporary Credentials.  Enter this command `export ASK_DEPLOY_ROLE_PREFIX=Cloud9-`.  This will allow the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
 
 ## Task 2. Download Workshop Code
 
@@ -122,40 +127,43 @@ There are ASK CLI commands for creating your in-skill purchases.  This section w
  	(Consumable_Template) Five_Hint_Pack
 	```
 
-8. **Navigate** to the new ISPs directory, and note the folder, *consumable*.  This is where the JSON file for your consumable in-skill product resides.
+5. **Navigate** to the new ISPs directory, and note the folder, *consumable*.  This is where the JSON file for your consumable in-skill product resides.
 
 	```
 	$ cd isps
 	$ ls
 	```
 
-9. **Navigate** to the *consumable* folder.  You should see one file in this directory which you created in an earlier step.
+6. **Navigate** to the *consumable* folder.  You should see one file in this directory which you created in an earlier step.
 
 	```
 	$ cd consumable
 	$ ls
 	```
 
-10. **Open** Five_Hint_Pack.json
+7. **Open** Five_Hint_Pack.json
 
 	This JSON file contains all of the necessary fields for your in-skill product, but you'll need to add the details to get them ready to sell. Because we used the Consumable_Template template, we have provided a small explanation for each field, make sure you replace all of them. Take a look at [the sample in our docs](https://developer.amazon.com/docs/smapi/isp-schemas.html#consumable-schema) for an additional reference.  For this sample, at a minimum, you will need to update the name (not referenceName!), smallIconUri, largeIconUri, summary, description, purchasePromptDescription, boughtCardDescription, releaseDate and privacyPolicyUrl.
 
 	> **IMPORTANT: Don't change the *referenceName* field in your file, as the workshop codebase is relying on the provided value.**
 
-**TBD** Convert to table and add descriptions and values to use.
-	* name
-	* smallIconUri
-	* largeIconUri
-	* summary
-	* description
-	* purchasePromptDescription
-	* boughtCardDescription
-	* releaseDate
-	* privacyPolicyUrl
+Field|Description|Value for Workshop
+-----|-----------|------------------
+`name`|The name of the product.  Used by Alexa when reporitng a purchase was successful.|Five Hint Pack
+`smallIconUri`|Small icon used with product when displayed in the skill store or Alexa app.  |https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_108.png
+`largeIconUri`|Large icon used with product when displayed in the skill store or Alexa app.|https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_512.png
+`summary`|Summary description of the product.| The Five Hint Pack will give you five hints to help you solve our questions.
+`description`|A full description explaining the product's functionality and any prerequisites to using it.| The Five Hint Pack will give you five hints to help you solve our questions.
+`purchasePromptDescription`|The description of the product a customer hears when making a purchase or when they cancel a subscription.| This will give you five hints to help you solve our questions.
+`boughtCardDescription`|A description of the product that displays on the skill card in the Alexa app.| You have successfully purchased the five hint pack! 
+`releaseDate`|The first date the product is available for purhcase.|2018-10-01
+`privacyPolicyUrl`|A URL to the privacy policy for this locale.|https://localhost/privacy.html
 
-	Now that you have customized your in-skill product, you can deploy your ISP.
+  Now that you have customized your in-skill product, you can deploy your ISP.  Before you publish your skill, you should complete the remaining fields.
 
-### Deployment
+  > Need help creating icons for your ISP or skill? Check out the [Alexa Skill Icon Builder](https://developer.amazon.com/docs/tools/icon-builder.html)
+
+### Task 5. ISP Deployment
 
 1. **Navigate** to the project's root directory. You should see a file named 'skill.json' there.
 
@@ -163,12 +171,21 @@ There are ASK CLI commands for creating your in-skill purchases.  This section w
 	$ cd ../..
 	```
 
-2. **Deploy** the skill and the Lambda function in one step by running the following command:
+2. **Deploy** the In-Skill Product by running the following command:
 
 	```
 	$ ask deploy --target isp
 	```
 
-	Alternatively you can use ```ask deploy``` without the ```--target isp``` modifier, however it will redeploy your entire skill -- the manifest, the interaction model and the lambda code, as well as re-build your interaction model -- which can take a few minutes.  If there were no changes to the skill other than creating the ISP's, then you can target your deployment.  Enter ```ask deploy --help``` for the full list of the target options and other usage information.
+	Alternatively you can use `ask deploy` without the `--target isp` modifier, however it will redeploy your entire skill -- the manifest, the interaction model and the lambda code, as well as re-build your interaction model -- which can take a few minutes.  If there were no changes to the skill other than creating the ISP's, then you can target your deployment.  Enter `ask deploy --help` for the full list of the target options and other usage information.
+
+### Lab 1 Recap
+
+Congrats!  By following these steps you should have accomplished these goals:
+* Setup your accounts, the ASK CLI, and other prerequisites
+* Deployed the version of the "Name The Show" skill without any In-Skill Products
+* Created and deployed the "Five_Hint_Pack" Consumable In-Skill Product
 
 Continue the workshop in [Lab 2](./../3%20-%20Lab$202%20Resources/README.md)
+
+Having trouble?  Not sure you're on the right path? Check out [Completed Lab 1](./../2%20-%20Lab%201%20Completed/)
