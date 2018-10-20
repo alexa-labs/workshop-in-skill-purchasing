@@ -45,9 +45,12 @@ If you already have the ASK CLI working, you can skip to the next section.
 1. Switch back to the Cloud9 terminal.  Paste the code at the prompt.
 1. If you have more than one Vendor ID associated with your login, select the one you want to use.
 > If your Vendor ID cannot be retrieved (error message is 'call list-vendors error' / 401 / 'You are not authorized to access this operation'), it typically means you haven't fully created your Developer Account.  Return to https://developer.amazon.com/alexa-skills-kit and finish providing the requested data.
-1. Now that the ASK CLI is installed and configured, there's one last step to get it to work with Cloud9 Temporary Credentials.  Enter this command `export ASK_DEPLOY_ROLE_PREFIX=Cloud9-`.  This will allow the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
+1. Now that the ASK CLI is installed and configured, there's one last step to get it to work with Cloud9 Temporary Credentials.  Enter this command `echo 'export ASK_DEPLOY_ROLE_PREFIX=Cloud9-' >> ~/.bash_profile`.  This sets an environment variable which allows the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
+1. For the new environment variable to be usable, close the current terminal session (enter `exit`) and launch a new terminal session (click the **+** and then select **New Terminal**)
 
 ## Task 2. Download Workshop Code
+
+Now that the prerequisites are taken care of, let's get the base skill setup.
 
 1. Clone the workshop repo with this command:
 
