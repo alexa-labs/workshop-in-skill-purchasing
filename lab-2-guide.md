@@ -1,33 +1,19 @@
 # Lab 2
 
+At the completion of Lab 1, you will have a deployed, working base skill, plus you will have created and deployed the In-Skill Product we will use.  If that is not your current state, you can review Lab 1 (here)[./lab-1-guide.md] or find a completed Lab 1 [here](./2%20-%20Lab%201%20Completed/)
+
+In this lab, you will update the voice interaction model and skill code to work with In-Skill Purchasing.
+
 ### Objectives
-* Update VUI
+* Update Voice Interaction Model (VUI)
 * Add Upsell to Skill Code
-* Add Upsell to Skill Code
-* Add Hint Use to Skill Code
+* Add Buy to Skill Code
 
-## Update VUI
+## Task 1. Update Voice Interaction Model (VUI)
 
-                {
-                    "name": "HintIntent",
-                    "slots": [],
-                    "samples": [
-                        "use a hint",
-                        "give me a hint",
-                        "give me another actor",
-                        "i need a hint"
-                    ]
-                },
-                {
-                    "name": "CancelPurchaseIntent",
-                    "slots": [],
-                    "samples": [
-                        "cancel my purchase",
-                        "return my hints",
-                        "cancel transaction",
-                        "stop purchase"
-                    ]
-                },
+In the **models** folder of your skill, locate the `en-US.json` file.  This is the interaction model for the en-US locale.  On line 5, locate the **Intents** object.  The first intent that needs to be added is the `BuyHintIntent`.  Copy the definition below and paste it on line 6 to add it to the **Intents** object.
+
+```
                 {
                     "name": "BuyHintIntent",
                     "slots": [],
@@ -39,11 +25,57 @@
                         "buy more hints",
                         "buy some hints"
                     ]
-                    "name": "AMAZON.YesIntent",
-                    "name": "AMAZON.NoIntent",
- 
+                },
+```
+As you can see in the JSON snippet, you are defining the name of the intent, the slots (there are none for this intent), and the sample utterances which teach Alexa how to recognize someone is intending to trigger this intent.
 
- ## Update skill code
+Repeat this process to add these intents:
+### HintIntent
+
+```
+                {
+                    "name": "HintIntent",
+                    "slots": [],
+                    "samples": [
+                        "use a hint",
+                        "give me a hint",
+                        "give me another actor",
+                        "i need a hint"
+                    ]
+                },
+```
+### CancelPurchaseIntent
+```
+                {
+                    "name": "CancelPurchaseIntent",
+                    "slots": [],
+                    "samples": [
+                        "cancel my purchase",
+                        "return my hints",
+                        "cancel transaction",
+                        "stop purchase"
+                    ]
+                },
+```
+The updated interaction model also needs to have the built-in intents for Yes and No added.  For these intents, there are no slots, and you don't need to provide any sample utterances.  Otherwise, adding them follows the same process.
+### AMAZON.YesIntent
+```
+                {
+                    "name": "AMAZON.YesIntent",
+                    "samples": []
+                },
+```
+### AMAZON.NoIntent
+```
+                {
+                    "name": "AMAZON.NoIntent",
+                    "samples": []
+                },
+```                  
+
+Save and close the file.
+
+## Task 2. Update skill code
 
     HintHandler,
     BuyHintHandler,
@@ -172,14 +204,10 @@ i18n Updates
 ### Lab 2 Recap
 
 Congrats!  By following these steps you should have accomplished these goals:
-* 
+* Updated the VUI
+* Added Upsell to Skill Code
+* Added Buy to Skill Code
 
-* Update VUI
-* Add Upsell to Skill Code
-* Add Upsell to Skill Code
-* Add Hint Use to Skill Code
+Continue the workshop in [Lab 3](./lab-3-guide.md)
 
-
-Continue the workshop in [Lab 3](./../5%20-%20Lab$203%20Resources/README.md)
-
-Having trouble?  Not sure you're on the right path? Check out [Completed Lab 2](./../4%20-%20Lab%202%20Completed/)
+Having trouble?  Not sure you're on the right path? Check out [Completed Lab 2](./4%20-%20Lab%202%20Completed/)

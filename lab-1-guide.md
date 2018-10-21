@@ -63,88 +63,66 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 > Note: This guide is written with commands that work in Cloud9.  If you are using a Mac or Windows, the commands might be slightly different.
 
 1. Change to the **working** directory and deploy the skill.
-
-```
-$ cd workshop-in-skill-purchasing
-$ cd working
-$ ask deploy
-```
-
-2. Verify the skill launches by using the CLI simulate command.
-
-```
-$ ask simulate -l en-US -t "open name the show"
-```
-
-3. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or Echosim.io, play the game.
-
-4. _(Optional)_ **Explore** the project structure.  You should see folders for lambda and models, and skill.json file.
-
+	```
+	$ cd workshop-in-skill-purchasing
+	$ cd working
+	$ ask deploy
+	```
+1. Verify the skill launches by using the CLI simulate command.
+	```
+	$ ask simulate -l en-US -t "open name the show"
+	```
+1. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or https://Echosim.io, play the game.
+1. _(Optional)_ Explore the project structure.  You should see folders for lambda and models, and skill.json file.
 	```
 	$ ls
 	lambda		models		skill.json
 	```
-
-5. **Open** the models folder.
-
+1. Open the models folder.
 	```
 	$ cd models
 	```
-
-6. **Open** the interaction model file, en-US.json.
-
+1. Open the interaction model file, en-US.json.
 	```
 	$ open en-US.json
 	```
 
-### Task 4. Create In-Skill Products
+## Task 4. Create In-Skill Products
 
 There are ASK CLI commands for creating your in-skill purchases.  This section will walk you through creating the Consumable In-Skill Products.  
 
-1. **Create** your first in-skill product.  You should be in the project's root directory.
-
+1. Create your first in-skill product.  You should be in the project's root directory.
 	```
 	$ ask add isp
 	```
-
-2. **Choose** Consumable.
-
+1. Choose **Consumable**.
 	```
 	? List of in-skill product types you can choose (Use arrow keys)
 	❯ Consumables
-  Entitlement
+	Entitlement
  	Subscription
 	```
-
-3. **Choose** Consumable_Template as your template.  (Note - currently there is only one template.)
-
+1. Choose **Consumable_Template** as your template.  (Note - currently there is only one template.)
 	```
 	? List of in-skill product templates you can choose (Use arrow keys)
 	❯ Consumable_Template
 	```
-
-4. **Name** your in-skill product *Five_Hint_Pack*.  (Note - This name is used in the skill code, and is case-sensitive.)
-
+1. Name your in-skill product `Five_Hint_Pack`.  (Note - This name is used in the skill code, and is case-sensitive.)
 	```
 	? Please type in your new in-skill product name:
  	(Consumable_Template) Five_Hint_Pack
 	```
-
-5. **Navigate** to the new ISPs directory, and note the folder, *consumable*.  This is where the JSON file for your consumable in-skill product resides.
-
+1. Navigate to the new ISPs directory, and note the folder, *consumable*.  This is where the JSON file for your consumable in-skill product resides.  If you were using one-time purchases or subscriptions you would see folders name *entitlements* or *subscriptions*.
 	```
 	$ cd isps
 	$ ls
 	```
-
-6. **Navigate** to the *consumable* folder.  You should see one file in this directory which you created in an earlier step.
-
+1. Navigate to the **consumable** folder.  You should see one file in this directory which you created in an earlier step.
 	```
 	$ cd consumable
 	$ ls
 	```
-
-7. **Open** Five_Hint_Pack.json
+1. Open **Five_Hint_Pack.json** and edit the contents.  You can do this in Cloud9 by double-clicking on the file in the navigation pane on the left.
 
 	This JSON file contains all of the necessary fields for your in-skill product, but you'll need to add the details to get them ready to sell. Because we used the Consumable_Template template, we have provided a small explanation for each field, make sure you replace all of them. Take a look at [the sample in our docs](https://developer.amazon.com/docs/smapi/isp-schemas.html#consumable-schema) for an additional reference.  For this sample, at a minimum, you will need to update the name (not referenceName!), smallIconUri, largeIconUri, summary, description, purchasePromptDescription, boughtCardDescription, releaseDate and privacyPolicyUrl.
 
@@ -166,7 +144,7 @@ Field|Description|Value for Workshop
 
   > Need help creating icons for your ISP or skill? Check out the [Alexa Skill Icon Builder](https://developer.amazon.com/docs/tools/icon-builder.html)
 
-### Task 5. ISP Deployment
+## Task 5. ISP Deployment
 
 1. **Navigate** to the project's root directory. You should see a file named 'skill.json' there.
 
@@ -182,13 +160,13 @@ Field|Description|Value for Workshop
 
 	Alternatively you can use `ask deploy` without the `--target isp` modifier, however it will redeploy your entire skill -- the manifest, the interaction model and the lambda code, as well as re-build your interaction model -- which can take a few minutes.  If there were no changes to the skill other than creating the ISP's, then you can target your deployment.  Enter `ask deploy --help` for the full list of the target options and other usage information.
 
-### Lab 1 Recap
+## Lab 1 Recap
 
 Congrats!  By following these steps you should have accomplished these goals:
 * Setup your accounts, the ASK CLI, and other prerequisites
 * Deployed the version of the "Name The Show" skill without any In-Skill Products
 * Created and deployed the "Five_Hint_Pack" Consumable In-Skill Product
 
-Continue the workshop in [Lab 2](./../3%20-%20Lab$202%20Resources/README.md)
+Continue the workshop in [Lab 2](./lab-2-guide.md)
 
-Having trouble?  Not sure you're on the right path? Check out [Completed Lab 1](./../2%20-%20Lab%201%20Completed/)
+Having trouble?  Not sure you're on the right path? Check out [Completed Lab 1](./2%20-%20Lab%201%20Completed/)
