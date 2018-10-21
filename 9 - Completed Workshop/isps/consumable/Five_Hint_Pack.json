@@ -6,10 +6,10 @@
     "locales": {
       "en-US": {
         "name": "Five Hint Pack",
-        "smallIconUri": "https://s3.amazonaws.com/jeffblankenburg.stuff/namethatshow/5hints_108.png",
-        "largeIconUri": "https://s3.amazonaws.com/jeffblankenburg.stuff/namethatshow/5hints_512.png",
-        "summary": "THIS IS THE SUMMARY.",
-        "description": "THIS IS THE DESCRIPTION.",
+        "smallIconUri": "https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_108.png",
+        "largeIconUri": "https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_512.png",
+        "summary": "The Five Hint Pack will give you five hints to help you solve our questions.",
+        "description": "The Five Hint Pack will give you five hints to help you solve our questions.",
         "examplePhrases": [
           "TODO: REPLACE THIS WITH SAMPLE UTTERANCE FOR HOW USERS WILL BUY OR INVOKE THIS PRODUCT - 'Alexa, buy product name'  Or 'Alexa, play product name'"
         ],
@@ -17,8 +17,8 @@
           "TODO: REPLACE THIS WITH ARRAY OF KEYWORDS TO BE USED FOR SEARCH INDEXING THE PRODUCT"
         ],
         "customProductPrompts": {
-          "purchasePromptDescription": "This will give you five hints to help you solve our questions. ",
-          "boughtCardDescription": "You have successfully purchased the five hint pack! "
+          "purchasePromptDescription": "This will give you five hints to help you solve our questions.",
+          "boughtCardDescription": "You have successfully purchased the five hint pack!"
         }
       }
     },
@@ -27,7 +27,7 @@
     ],
     "pricing": {
       "amazon.com": {
-        "releaseDate": "2018-08-28",
+        "releaseDate": "2018-10-01",
         "defaultPriceListing": {
           "price": 0.99,
           "currency": "USD"
@@ -41,10 +41,10 @@
   "privacyAndCompliance": {
     "locales": {
       "en-US": {
-        "privacyPolicyUrl": "http://jeffblankenburg.com/privacy"
+        "privacyPolicyUrl": "https://localhost/privacy.html"
       }
     }
   },
-  "testingInstructions": "This should increment the total count of hints for a user by five.",
+  "testingInstructions": "TODO: REPLACE THIS WITH TESTING INSTRUCTIONS FOR THE CERTIFICATION TEAM SO THEY KNOW HOW TO PURCHASE AND USE THIS PRODUCT",
   "purchasableState": "PURCHASABLE"
 }
