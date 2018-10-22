@@ -44,19 +44,6 @@ In this lab, you will update the voice interaction model and skill code to work 
 
 ## Task 2. Update skill code
 
-TODO: confirm that skill code uses session variables to track inventory before we add persistent attributes
-```javascript
-getClue
-  TODO: need to update based on i18n changes
-  for (let i = 0; i < actor.length; i += 1) {
-    if (i !== 0) {
-      actorString += ', and ';
-      reference = 'these people';
-    }
-    actorString += show['actor' + actor[i]];
-  }
-```
-
 1. Open the **index.js** file in your **/lambda/custom** folder.
 1. Add the **useHint** helper function by locating the **lab-2-task-2-a** marker and pasting in the following code:
     ```javascript
