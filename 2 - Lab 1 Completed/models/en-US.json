@@ -47,16 +47,6 @@
                     ]
                 },
                 {
-                    "name": "HintInventoryIntent",
-                    "slots": [],
-                    "samples": [
-                        "how many hints do I have left",
-                        "how many hints do I have",
-                        "how many hints remain",
-                        "how many hints"
-                    ]
-                },
-                {
                     "name": "AMAZON.YesIntent",
                     "samples": []
                 },
@@ -73,16 +63,16 @@
                 {
                     "name": "Answer",
                     "values": [
-                        { "name": {"value": "game of thrones"}},
-                        { "name": {"value": "breaking bad"}},
-                        { "name": {"value": "friends"}},
-                        { "name": {"value": "westworld", "synonyms": ["west world"]}},
-                        { "name": {"value": "parks and recreation", "synonyms": ["parks and wreck"]}},
-                        { "name": {"value": "modern family"}},
-                        { "name": {"value": "brooklyn nine nine"}},
-                        { "name": {"value": "how i met your mother", "synonyms": ["met your mother"]}},
-                        { "name": {"value": "lost"}},
-                        { "name": {"value": "firefly"}}
+                        { "name": {"value": "the man in the high castle"}},
+                        { "name": {"value": "goliath"}},
+                        { "name": {"value": "bosch"}},
+                        { "name": {"value": "hand of god"}},
+                        { "name": {"value": "tom clancy's jack ryan", "synonyms": ["jack ryan"]}},
+                        { "name": {"value": "the grand tour"}},
+                        { "name": {"value": "transparent"}},
+                        { "name": {"value": "sneaky pete"}},
+                        { "name": {"value": "the marvelous mrs. maisel"}},
+                        { "name": {"value": "the tick"}}
                     ]
                 }
             ]

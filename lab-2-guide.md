@@ -27,48 +27,19 @@ In this lab, you will update the voice interaction model and skill code to work 
                     },
     ```
     As you can see in the JSON snippet, you are defining the name of the intent, the slots (there are none for this intent), and the sample utterances which teach Alexa how to recognize someone is intending to trigger this intent.
-1. Repeat this process to add these intents:
-    1. HintIntent
-        ```
-                        {
-                            "name": "HintIntent",
-                            "slots": [],
-                            "samples": [
-                                "use a hint",
-                                "give me a hint",
-                                "give me another actor",
-                                "i need a hint"
-                            ]
-                        },
-        ```
-    1. CancelPurchaseIntent
-        ```
-                        {
-                            "name": "CancelPurchaseIntent",
-                            "slots": [],
-                            "samples": [
-                                "cancel my purchase",
-                                "return my hints",
-                                "cancel transaction",
-                                "stop purchase"
-                            ]
-                        },
-        ```
-1. The updated interaction model also needs to have the built-in intents for Yes and No added.  For these intents, there are no slots, and you don't need to provide any sample utterances.  Otherwise, adding them follows the same process.
-    1. AMAZON.YesIntent
-        ```
-                        {
-                            "name": "AMAZON.YesIntent",
-                            "samples": []
-                        },
-        ```
-    1. AMAZON.NoIntent
-        ```
-                        {
-                            "name": "AMAZON.NoIntent",
-                            "samples": []
-                        },
-        ```                  
+1. Repeat this process to add the CancelPurchaseIntent
+    ```
+                    {
+                        "name": "CancelPurchaseIntent",
+                        "slots": [],
+                        "samples": [
+                            "cancel my purchase",
+                            "return my hints",
+                            "cancel transaction",
+                            "stop purchase"
+                        ]
+                    },
+    ```
 1. Save and close the file.
 
 ## Task 2. Update skill code
@@ -87,7 +58,7 @@ getClue
 ```
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
-1. Add the **useHint** helper function by locating the **lab-2-task-2-?** marker and pasting in the following code:
+1. Add the **useHint** helper function by locating the **lab-2-task-2-a** marker and pasting in the following code:
     ```javascript
     async function useHint(handlerInput) {
       const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
@@ -98,7 +69,7 @@ getClue
       handlerInput.attributesManager.savePersistentAttributes();
     }
     ```
-1. Add the **useHint** helper function by locating the **lab-2-task-2-?** marker and pasting in the following code:
+1. Add the **useHint** helper function by locating the **lab-2-task-2-b** marker and pasting in the following code:
     ```javascript
     const HintHandler = {
       canHandle(handlerInput) {
@@ -171,45 +142,43 @@ getClue
     };
     ```
 
-1. Add the new handlers to the list of available handlers by locating the **lab-2-task-2-b** marker and pasting in the following code:
+1. Add the new handlers to the list of available handlers by locating the **lab-2-task-2-c** marker and pasting in the following code:
     ```javascript
-    HintHandler,
     BuyHintHandler,
     BuyHintResponseHandler,
     CancelPurchaseHandler,
     ```
 
-1. Update the **LaunchRequest** handler to use the available hints by locating the **lab-2-task-2-?** marker and adding the following code:
+1. Update the **LaunchRequest** handler to use the available hints by locating the **lab-2-task-2-d** marker and adding the following code:
     ```javascript
         // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
         if (sessionAttributes.hintsAvailable > 0) hintText = requestAttributes.t('HINTS_AVAILABLE', sessionAttributes.hintsAvailable);
     ```
 
-1. Update the **canHandle** condition for the **CancelAndStopIntentHandler** by adding the following code:
+1. Update the **canHandle** condition for the **CancelAndStopIntentHandler** by adding the following code at marker **lab-2-task-2-e**:
     ```javascript
+            ||
           (handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
             handlerInput.requestEnvelope.request.name === 'Cancel' &&
-            handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED');
+            handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED')
     ```
 1. Close and save **index.js**.
 
 ## Task 3. Updates String Messages
 
 1. Open the **en.js** file found in **/lambda/custom/languages**.
+1. Replace these strings:
+```javascript
+    WELCOME_MESSAGE: 'Welcome to Name The Show!  I will give you the name of an actor or actress, and you have to tell me what television show I am thinking of. If you can\'t figure one out, you can purchase hints, and I\'ll give you the name of another actor from the same show. %s Ready for your first question?',
+    HELP_PROMPT: 'I give you the name of an actor or actress, and you have to tell me what television show I am thinking of.  You can buy hints if you need the name of a second or third actor...just ask!  Are you ready for a question?',
+```
+
 1. Add these strings:
 ```javascript
-    HINTS_AVAILABLE: 'You currently have %i hints available to use.',
-    WELCOME_MESSAGE: 'Welcome to Name The Show!  I will give you the name of an actor or actress, and you have to tell me what television show I am thinking of. If you can\'t figure one out, you can purchase hints, and I\'ll give you the name of another actor from the same show. %s Ready for your first question?',
     CANNOT_BUY_RIGHT_NOW: 'I am sorry. The hint pack is not available for purchase at this time.',
-    HELP_PROMPT: 'I give you the name of an actor or actress, and you have to tell me what television show I am thinking of.  You can buy hints if you need the name of a second or third actor...just ask!  Are you ready for a question?',
     NO_HINTS_FOR_NOW: 'No hints for now.  Got it. %S',
     THANK_YOU: 'Thanks for buying some hints! %s',
     UNABLE_TO_SELL: 'It looks like we are unable to sell hints right now.  Sorry.  Maybe you\'ll get it this time anyways. %s',
-    NOT_CORRECT: 'I\'m sorry.  That is not the show I\'m thinking of.  You can guess again, or say I Don\'t Know.  If you would like a hint, just say give me a hint.',
-    CORRECT_ANSWER: 'That is correct!  I was thinking of the show %s.  Would you like to try another question?',
-    REPLAY_PROMPT: 'You currently have %i hints available.  Are you ready for your next question?',
-    NO_MORE_CLUES: 'You have already used two clues on this show.  We don\'t have any more clues for you. %s',
-    NEW_CLUE: 'OK.  I\'ve added an actor to your clues.  Here it is. %s',
     UPSELL_MESSAGE: 'You don\'t currently have any hints available.  Would you like to know more about the five hint pack?',
     CURRENTLY_UNAVAILABLE: 'I am sorry. That hint pack is not available for purchase at this time.',
 ```
