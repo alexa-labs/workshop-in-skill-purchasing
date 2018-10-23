@@ -51,6 +51,7 @@ const LaunchRequestHandler = {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     let hintText = '';
+    // lab-2-task-2-e
     // SET DEFAULT NUMBER OF HINTS PER USER SESSION
     sessionAttributes.hintsAvailable = 2;
     // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
@@ -91,6 +92,8 @@ const YesIntentHandler = {
   },
 };
 
+// lab-2-task-2-b
+
 const AnswerHandler = {
   canHandle(handlerInput) {
     return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
@@ -119,24 +122,7 @@ const AnswerHandler = {
   },
 };
 
-const HintInventoryHandler = {
-  canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-      handlerInput.requestEnvelope.request.intent.name === 'HintInventoryIntent';
-  },
-  handle(handlerInput) {
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-
-    const speakOutput = requestAttributes.t('REPLAY_PROMPT', sessionAttributes.hintsAvailable);
-    const repromptOutput = speakOutput;
-
-    return handlerInput.responseBuilder
-      .speak(speakOutput)
-      .reprompt(repromptOutput)
-      .getResponse();
-  },
-};
+// lab-3-task-4-a
 
 const IDontKnowHandler = {
   canHandle(handlerInput) {
@@ -192,15 +178,16 @@ const HintHandler = {
         .speak(speakOutput)
         .reprompt(repromptOutput)
         .getResponse();
-    } else {
-      speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
-      repromptOutput = speakOutput;
-
-      return handlerInput.responseBuilder
-        .speak(speakOutput)
-        .reprompt(repromptOutput)
-        .getResponse();
     }
+    // start lab-2-task-2-a
+    speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
+    repromptOutput = speakOutput;
+
+    return handlerInput.responseBuilder
+      .speak(speakOutput)
+      .reprompt(repromptOutput)
+      .getResponse();
+    // end lab-2-task-2-a
   },
 };
 
@@ -227,7 +214,7 @@ const CancelAndStopIntentHandler = {
       (handlerInput.requestEnvelope.request.intent.name === 'AMAZON.CancelIntent' ||
         handlerInput.requestEnvelope.request.intent.name === 'AMAZON.StopIntent' ||
         handlerInput.requestEnvelope.request.intent.name === 'AMAZON.NoIntent')) 
-        // lab-2-task-2-e
+        // lab-2-task-2-d
         ;
   },
   handle(handlerInput) {
@@ -343,6 +330,8 @@ function isErSuccessMatch(slot, handlerInput) {
   return false;
 }
 
+// lab-3-task-4-e
+
 // Finding the locale of the user
 const LocalizationInterceptor = {
   process(handlerInput) {
@@ -379,6 +368,7 @@ const LogIncomingRequestInterceptor = {
   },
 };
 
+// lab-3-task-4-c
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
@@ -389,8 +379,9 @@ exports.handler = skillBuilder
     YesIntentHandler,
     AnswerHandler,
     HintHandler,
+    // lab-2-task-2-c
     IDontKnowHandler,
-    HintInventoryHandler,
+    // lab-3-task-4-b
     CancelAndStopIntentHandler,
     SessionEndedRequestHandler,
   )
@@ -398,5 +389,7 @@ exports.handler = skillBuilder
   .addRequestInterceptors(
     LogIncomingRequestInterceptor,
     LocalizationInterceptor,
+    // lab-3-task-4-d
   )
+  // lab-3-task-3
   .lambda();

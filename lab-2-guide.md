@@ -8,6 +8,7 @@ In this lab, you will update the voice interaction model and skill code to work 
 * Update Voice Interaction Model (VUI)
 * Add Upsell to Skill Code
 * Add Buy to Skill Code
+* Add Connections Handler to Skill Code
 
 ## Task 1. Update Voice Interaction Model (VUI)
 
@@ -45,55 +46,8 @@ In this lab, you will update the voice interaction model and skill code to work 
 ## Task 2. Update skill code
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
-1. Add the **useHint** helper function by locating the **lab-2-task-2-a** marker and pasting in the following code:
+1. Update the **useHint** helper function to make an upsell when clues are available and the user doesn't have any hints to use.  Do this by locating the **lab-2-task-2-a** marker and pasting in the following code between the start and end markers:
     ```javascript
-    async function useHint(handlerInput) {
-      const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-      const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-
-      sessionAttributes.hintsAvailable -= 1;
-      persistentAttributes.hintsUsed += 1;
-      handlerInput.attributesManager.savePersistentAttributes();
-    }
-    ```
-1. Add the **useHint** helper function by locating the **lab-2-task-2-b** marker and pasting in the following code:
-    ```javascript
-    const HintHandler = {
-      canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-          handlerInput.requestEnvelope.request.intent.name === 'HintIntent';
-      },
-      async handle(handlerInput) {
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-        let speakOutput = '';
-        let repromptOutput = '';
-
-        // IF THE USER HAS ALREADY USED TWO HINTS ON THIS PUZZLE, DON'T LET THEM USE ANOTHER.
-        // WE DON'T HAVE MORE INFORMATION TO OFFER THEM.
-        if (sessionAttributes.currentActors.length === 3) {
-          speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
-          repromptOutput = speakOutput;
-
-          return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(repromptOutput)
-            .getResponse();
-        } else if (sessionAttributes.hintsAvailable > 0) {
-          // IF THE USER HAS AVAILABLE HINTS, USE ONE.
-          useHint(handlerInput);
-          console.log(`CURRENT ACTOR = ${sessionAttributes.currentActors}`);
-          const randomActor = getRandomActor(sessionAttributes.currentActors);
-          console.log(`RANDOM ACTOR = ${randomActor}`);
-          sessionAttributes.currentActors += randomActor.toString();
-          speakOutput = requestAttributes.t('NEW_CLUE', getClue(handlerInput));
-          repromptOutput = speakOutput;
-
-          return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(repromptOutput)
-            .getResponse();
-        }
         // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
 
         // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
@@ -125,29 +79,157 @@ In this lab, you will update the voice interaction model and skill code to work 
             .speak(requestAttributes.t('CURRENTLY_UNAVAILABLE'))
             .getResponse();
         });
+    ```
+1. Add the BuyHintResponseHandler code by locating the **lab-2-task-2-b** marker and pasting in the following code:
+    ```javascript
+    const BuyHintResponseHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+          (handlerInput.requestEnvelope.request.name === 'Upsell' ||
+            handlerInput.requestEnvelope.request.name === 'Buy');
+      },
+      async handle(handlerInput) {
+        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+        // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
+        if (persistentAttributes.currentSession !== undefined) {
+          sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
+          sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
+        }
+        console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
+
+        let speakOutput = '';
+
+        // IF THE USER DECLINED THE PURCHASE.
+        if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'DECLINED') {
+          speakOutput = requestAttributes.t('NO_HINTS_FOR_NOW', getClue(handlerInput));
+        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED') {
+          // IF THE USER SUCCEEDED WITH THE PURCHASE.
+          if (sessionAttributes.currentActors !== undefined
+            && sessionAttributes.currentActors.length !== 3) {
+            useHint(handlerInput);
+            const randomActor = getRandomActor(sessionAttributes.currentActors);
+            sessionAttributes.currentActors += randomActor.toString();
+          }
+          speakOutput = requestAttributes.t('THANK_YOU', getClue(handlerInput));
+        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ERROR') {
+          // IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
+          speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
+        }
+
+        // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
+        persistentAttributes.currentSession = undefined;
+        handlerInput.attributesManager.savePersistentAttributes();
+
+        return handlerInput.responseBuilder
+          .speak(speakOutput)
+          .reprompt(speakOutput)
+          .getResponse();
       },
     };
     ```
+1. Repeat this for the **CancelPurchaseHandler**:
+    ```javascript
+    const CancelPurchaseHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+          handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
+      },
+      async handle(handlerInput) {
+        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
+        persistentAttributes.currentSession = sessionAttributes;
+        handlerInput.attributesManager.savePersistentAttributes();
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+            return handlerInput.responseBuilder
+              .addDirective({
+                'type': 'Connections.SendRequest',
+                'name': 'Cancel',
+                'payload': {
+                  'InSkillProduct': {
+                    'productId': hintpack[0].productId,
+                  },
+                },
+                'token': 'correlationToken',
+              })
+              .getResponse();
+          }
+          return handlerInput.responseBuilder
+            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+            .getResponse();
+        });
+      },
+    };
+    ```
+1. Repeat this for the **BuyHintHandler**:
+    ```javascript
+    const BuyHintHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+          handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
+      },
+      async handle(handlerInput) {
+        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+        persistentAttributes.currentSession = sessionAttributes;
+        handlerInput.attributesManager.savePersistentAttributes();
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+            return handlerInput.responseBuilder
+              .addDirective({
+                'type': 'Connections.SendRequest',
+                'name': 'Buy',
+                'payload': {
+                  'InSkillProduct': {
+                    'productId': hintpack[0].productId,
+                  },
+                },
+                'token': 'correlationToken',
+              })
+              .getResponse();
+          }
+          return handlerInput.responseBuilder
+            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+            .getResponse();
+        });
+      },
+    };
+    ```
 1. Add the new handlers to the list of available handlers by locating the **lab-2-task-2-c** marker and pasting in the following code:
     ```javascript
     BuyHintHandler,
     BuyHintResponseHandler,
     CancelPurchaseHandler,
     ```
-
-1. Update the **LaunchRequest** handler to use the available hints by locating the **lab-2-task-2-d** marker and adding the following code:
-    ```javascript
-        // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
-        if (sessionAttributes.hintsAvailable > 0) hintText = requestAttributes.t('HINTS_AVAILABLE', sessionAttributes.hintsAvailable);
-    ```
-
-1. Update the **canHandle** condition for the **CancelAndStopIntentHandler** by adding the following code at marker **lab-2-task-2-e**:
+1. Update the **canHandle** condition for the **CancelAndStopIntentHandler** by adding the following code at marker **lab-2-task-2-d**:
     ```javascript
             ||
           (handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
             handlerInput.requestEnvelope.request.name === 'Cancel' &&
             handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED')
+    ```
+1. Remove the default hint provisioning that was part of the base skill for the workshop.  (This provisioning allows you to test the skill.)  Find the **lab-2-task-2-e** marker and comment out (or remove) these lines of code:
+    ```javascript
+      // SET DEFAULT NUMBER OF HINTS PER USER SESSION
+      sessionAttributes.hintsAvailable = 2;
     ```
 1. Close and save **index.js**.
 
@@ -193,6 +275,7 @@ Congrats!  By following these steps you should have accomplished these goals:
 * Updated the VUI
 * Added Upsell to Skill Code
 * Added Buy to Skill Code
+* Added Connections Handler to Skill Code
 
 Continue the workshop in [Lab 3](./lab-3-guide.md)
 

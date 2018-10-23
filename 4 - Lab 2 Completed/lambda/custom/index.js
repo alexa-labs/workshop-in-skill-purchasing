@@ -51,8 +51,6 @@ const LaunchRequestHandler = {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     let hintText = '';
-    // SET DEFAULT NUMBER OF HINTS PER USER SESSION
-    sessionAttributes.hintsAvailable = 2;
     // IF THE USER HAS HINTS AVAILABLE, LET THEM KNOW HOW MANY.
     if (sessionAttributes.hintsAvailable > 0) hintText = requestAttributes.t('HINTS_AVAILABLE', sessionAttributes.hintsAvailable);
 
@@ -221,24 +219,7 @@ const AnswerHandler = {
   },
 };
 
-const HintInventoryHandler = {
-  canHandle(handlerInput) {
-    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-      handlerInput.requestEnvelope.request.intent.name === 'HintInventoryIntent';
-  },
-  handle(handlerInput) {
-    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-
-    const speakOutput = requestAttributes.t('REPLAY_PROMPT', sessionAttributes.hintsAvailable);
-    const repromptOutput = speakOutput;
-
-    return handlerInput.responseBuilder
-      .speak(speakOutput)
-      .reprompt(repromptOutput)
-      .getResponse();
-  },
-};
+// lab-3-task-4-a
 
 const IDontKnowHandler = {
   canHandle(handlerInput) {
@@ -462,6 +443,8 @@ function isErSuccessMatch(slot, handlerInput) {
   return false;
 }
 
+// lab-3-task-4-e
+
 // Finding the locale of the user
 const LocalizationInterceptor = {
   process(handlerInput) {
@@ -498,6 +481,7 @@ const LogIncomingRequestInterceptor = {
   },
 };
 
+// lab-3-task-4-c
 
 const skillBuilder = Alexa.SkillBuilders.standard();
 
@@ -508,17 +492,19 @@ exports.handler = skillBuilder
     YesIntentHandler,
     AnswerHandler,
     HintHandler,
-    IDontKnowHandler,
-    HintInventoryHandler,
-    CancelAndStopIntentHandler,
-    SessionEndedRequestHandler,
     BuyHintHandler,
     BuyHintResponseHandler,
     CancelPurchaseHandler,
+    IDontKnowHandler,
+    // lab-3-task-4-b
+    CancelAndStopIntentHandler,
+    SessionEndedRequestHandler,
   )
   .addErrorHandlers(ErrorHandler)
   .addRequestInterceptors(
     LogIncomingRequestInterceptor,
     LocalizationInterceptor,
+    // lab-3-task-4-d
   )
+  // lab-3-task-3
   .lambda();

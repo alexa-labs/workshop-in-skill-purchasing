@@ -588,10 +588,10 @@ exports.handler = skillBuilder
     HintHandler,
     BuyHintHandler,
     BuyHintResponseHandler,
+    CancelPurchaseHandler,
     IDontKnowHandler,
     HintInventoryHandler,
     CancelAndStopIntentHandler,
-    CancelPurchaseHandler,
     SessionEndedRequestHandler,
   )
   .addErrorHandlers(ErrorHandler)

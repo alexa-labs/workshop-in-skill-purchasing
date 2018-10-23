@@ -80,7 +80,7 @@ TODO - add manual DDB creation steps
 ## Task 4. Update the Skill Code to Check Inventory
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
-1. Add the HintInveotryHandler code by locating the **lab-3-task-4-a** marker and pasting in the following code:
+1. Add the HintInventoryHandler code by locating the **lab-3-task-4-a** marker and pasting in the following code:
     ```javascript
     const HintInventoryHandler = {
       canHandle(handlerInput) {
@@ -106,7 +106,7 @@ TODO - add manual DDB creation steps
         HintInventoryHandler,
     ```
 1. Add the CheckInventoryInterceptor.  This code will be run on every request to the skill, so we don't have to include it in every handler.  Locate the **lab-3-task-4-c** marker and paste in the following code:
-    ```
+    ```javascript
     const CheckInventoryInterceptor = {
       async process(handlerInput) {
         await checkInventory(handlerInput);
@@ -157,138 +157,16 @@ TODO - add manual DDB creation steps
       });
     }
     ```
-1. Repeat this for the **BuyHintResponseHandler**:
+1. Update the **useHint** helper function to use persistent attributes:
     ```javascript
-    const BuyHintResponseHandler = {
-      canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
-          (handlerInput.requestEnvelope.request.name === 'Upsell' ||
-            handlerInput.requestEnvelope.request.name === 'Buy');
-      },
-      async handle(handlerInput) {
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    async function useHint(handlerInput) {
+      const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
 
-        // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
-        if (persistentAttributes.currentSession !== undefined) {
-          sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
-          sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
-        }
-        console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
-
-        let speakOutput = '';
-
-        // IF THE USER DECLINED THE PURCHASE.
-        if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'DECLINED') {
-          speakOutput = requestAttributes.t('NO_HINTS_FOR_NOW', getClue(handlerInput));
-        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED') {
-          // IF THE USER SUCCEEDED WITH THE PURCHASE.
-          if (sessionAttributes.currentActors !== undefined
-            && sessionAttributes.currentActors.length !== 3) {
-            useHint(handlerInput);
-            const randomActor = getRandomActor(sessionAttributes.currentActors);
-            sessionAttributes.currentActors += randomActor.toString();
-          }
-          speakOutput = requestAttributes.t('THANK_YOU', getClue(handlerInput));
-        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ERROR') {
-          // IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
-          speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
-        }
-
-        // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
-        persistentAttributes.currentSession = undefined;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-        return handlerInput.responseBuilder
-          .speak(speakOutput)
-          .reprompt(speakOutput)
-          .getResponse();
-      },
-    };
-    ```
-1. Repeat this for the **CancelPurchaseHandler**:
-    ```javascript
-    const CancelPurchaseHandler = {
-      canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-          handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
-      },
-      async handle(handlerInput) {
-        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
-        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
-          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
-          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
-            return handlerInput.responseBuilder
-              .addDirective({
-                'type': 'Connections.SendRequest',
-                'name': 'Cancel',
-                'payload': {
-                  'InSkillProduct': {
-                    'productId': hintpack[0].productId,
-                  },
-                },
-                'token': 'correlationToken',
-              })
-              .getResponse();
-          }
-          return handlerInput.responseBuilder
-            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
-            .getResponse();
-        });
-      },
-    };
-    ```
-1. Repeat this for the **BuyHintHandler**:
-    ```javascript
-    const BuyHintHandler = {
-      canHandle(handlerInput) {
-        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
-          handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
-      },
-      async handle(handlerInput) {
-        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
-        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
-
-        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
-
-        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
-          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
-          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
-            return handlerInput.responseBuilder
-              .addDirective({
-                'type': 'Connections.SendRequest',
-                'name': 'Buy',
-                'payload': {
-                  'InSkillProduct': {
-                    'productId': hintpack[0].productId,
-                  },
-                },
-                'token': 'correlationToken',
-              })
-              .getResponse();
-          }
-          return handlerInput.responseBuilder
-            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
-            .getResponse();
-        });
-      },
-    };
+      sessionAttributes.hintsAvailable -= 1;
+      persistentAttributes.hintsUsed += 1;
+      handlerInput.attributesManager.savePersistentAttributes();
+    }
     ```
 1. Save and close **index.js**
 
