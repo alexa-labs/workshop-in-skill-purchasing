@@ -157,7 +157,7 @@ TODO - add manual DDB creation steps
       });
     }
     ```
-1. Update the **useHint** helper function to use persistent attributes:
+1. Update the **useHint** helper function to use persistent attributes:  (THIS SHOULD HAVE A MARKER LIKE THE REST.)
     ```javascript
     async function useHint(handlerInput) {
       const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
