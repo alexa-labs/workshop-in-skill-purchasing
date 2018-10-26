@@ -36,7 +36,7 @@ If you already have the ASK CLI working, you can skip to the next section.
 1. Create an environment
 1. Accept the defaults and click Next
 1. Review and click Create Environment
-1. Wait a few minutes while the environemnt is created.
+1. Wait a few minutes while the environment is created.
 1. Once the environment is ready, enter the command `npm install ask-cli -g` to install the ASK CLI.
 1. Configure the ASK CLI by entering the command `ask init --no-browser`.
 1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://docs.aws.amazon.com/cloud9/latest/user-guide/auth-and-access-control.html#auth-and-access-control-temporary-managed-credentials) to learn more about Temporary Credentials.
@@ -57,6 +57,7 @@ Now that the prerequisites are taken care of, let's get the base skill setup.
 ```git clone https://github.com/alexa/workshop-in-skill-purchasing```
 
 If you are not using Cloud9, and don't have git installed, click this [link](https://github.com/alexa/workshop-in-skill-purchasing/archive/master.zip) to download the repo.  Once downloaded, unzip it.
+If you have 2-factor authentication turned on for your GitHub account, you will need to create and use a [personal access token](https://github.com/settings/tokens/new).
 
 ## Task 3. Deploy and Test the Base Skill
 
@@ -72,6 +73,22 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	```
 	$ ask simulate -l en-US -t "open name the show"
 	```
+
+# ^ THIS FAILED.
+    
+    ec2-user:~/environment/workshop-in-skill-purchasing/working (master) $ ask simulate -l en-US -t "alexa, open name the show"
+    ✓ Simulation created for simulation id: 7b8c314a-e841-49ef-b579-f4304e5171ea
+    | Waiting for simulation response{
+    "id": "7b8c314a-e841-49ef-b579-f4304e5171ea",
+    "status": "FAILED",
+    "result": {
+            "error": {
+            "message": "Simulation did not result to an intent belonging to this skill. Please make sure the utterance text has the appropriate Alexa invocation command defined for your locale (such as \"ask <invocation name>\" for English locales). "
+            }
+        }
+    }
+    
+
 1. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or https://Echosim.io, play the game.
 1. _(Optional)_ Explore the project structure.  You should see folders for lambda and models, and skill.json file.
 	```
@@ -86,6 +103,10 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	```
 	$ open en-US.json
 	```
+
+# ^ THIS FAILED.
+    ec2-user:~/environment/workshop-in-skill-purchasing/working/models (master) $ open en-US.json
+    Couldn't get a file descriptor referring to the console 
 
 ## Task 4. Create In-Skill Products
 
