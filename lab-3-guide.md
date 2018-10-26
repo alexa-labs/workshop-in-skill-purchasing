@@ -9,7 +9,7 @@ In this lab we will update the IAM role used by the Lambda function so that the 
 
 ## Task 1. Update the AWS IAM Role to allow Amazon DynamoDB Access
 
-1. Locate the execution role used by the skill's Lambda function in the AWS IAM Console.  If you are using Cloud9, click [here](https://console.aws.amazon.com/iam/home#/roles/Cloud9-lambda-Name-The-Show) and you will go directly to the role.  If you are using the CLI elsewhere, click [here](https://console.aws.amazon.com/iam/home#/roles/ask-lambda-Name-The-Show) to go directly to the role.  If you want to locate the role manually, follow these steps:
+1. Locate the execution role used by the skill's Lambda function in the AWS IAM Console.  If you are using Cloud9, click [here](https://console.aws.amazon.com/iam/home#/roles/Cloud9-Name-The-Show) and you will go directly to the role.  If you are using the CLI elsewhere, click [here](https://console.aws.amazon.com/iam/home#/roles/ask-lambda-Name-The-Show) to go directly to the role.  If you want to locate the role manually, follow these steps:
     1. Open the AWS Console: https://console.aws.amazon.com
     1. Type **IAM** in the search box and click on it.
     1. Click on **Roles**.
