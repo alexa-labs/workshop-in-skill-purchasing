@@ -398,10 +398,12 @@ function getRandomActor(currentActor) {
   }
 }
 
+// start lab-3-task-4-f
 async function useHint(handlerInput) {
   const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
   sessionAttributes.hintsAvailable -= 1;
 }
+// end lab-3-task-4-f
 
 function getClue(handlerInput) {
   const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();

@@ -245,7 +245,7 @@ In this lab, you will update the voice interaction model and skill code to work 
 1. Add these strings:
 ```javascript
     CANNOT_BUY_RIGHT_NOW: 'I am sorry. The hint pack is not available for purchase at this time.',
-    NO_HINTS_FOR_NOW: 'No hints for now.  Got it. %S',
+    NO_HINTS_FOR_NOW: 'No hints for now.  Got it. %s',
     THANK_YOU: 'Thanks for buying some hints! %s',
     UNABLE_TO_SELL: 'It looks like we are unable to sell hints right now.  Sorry.  Maybe you\'ll get it this time anyways. %s',
     UPSELL_MESSAGE: 'You don\'t currently have any hints available.  Would you like to know more about the five hint pack?',

@@ -36,7 +36,7 @@ If you already have the ASK CLI working, you can skip to the next section.
 1. Create an environment
 1. Accept the defaults and click Next
 1. Review and click Create Environment
-1. Wait a few minutes while the environemnt is created.
+1. Wait a few minutes while the environment is created.
 1. Once the environment is ready, enter the command `npm install ask-cli -g` to install the ASK CLI.
 1. Configure the ASK CLI by entering the command `ask init --no-browser`.
 1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://docs.aws.amazon.com/cloud9/latest/user-guide/auth-and-access-control.html#auth-and-access-control-temporary-managed-credentials) to learn more about Temporary Credentials.
@@ -73,18 +73,9 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	$ ask simulate -l en-US -t "open name the show"
 	```
 1. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or https://Echosim.io, play the game.
-1. _(Optional)_ Explore the project structure.  You should see folders for lambda and models, and skill.json file.
+1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
 	```
-	$ ls
-	lambda		models		skill.json
-	```
-1. Open the models folder.
-	```
-	$ cd models
-	```
-1. Open the interaction model file, en-US.json.
-	```
-	$ open en-US.json
+TODO: show tree structure and describe folders/files
 	```
 
 ## Task 4. Create In-Skill Products
