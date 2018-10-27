@@ -36,7 +36,7 @@ If you already have the ASK CLI working, you can skip to the next section.
 1. Create an environment
 1. Accept the defaults and click Next
 1. Review and click Create Environment
-1. Wait a few minutes while the environemnt is created.
+1. Wait a few minutes while the environment is created.
 1. Once the environment is ready, enter the command `npm install ask-cli -g` to install the ASK CLI.
 1. Configure the ASK CLI by entering the command `ask init --no-browser`.
 1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://docs.aws.amazon.com/cloud9/latest/user-guide/auth-and-access-control.html#auth-and-access-control-temporary-managed-credentials) to learn more about Temporary Credentials.

@@ -447,6 +447,7 @@ function getRandomActor(currentActor) {
   }
 }
 
+// start lab-3-task-4-f
 async function useHint(handlerInput) {
   const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
   const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
@@ -455,6 +456,7 @@ async function useHint(handlerInput) {
   persistentAttributes.hintsUsed += 1;
   handlerInput.attributesManager.savePersistentAttributes();
 }
+// end lab-3-task-4-f
 
 function getClue(handlerInput) {
   const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
