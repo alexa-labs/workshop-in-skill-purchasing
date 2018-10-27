@@ -73,18 +73,9 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	$ ask simulate -l en-US -t "open name the show"
 	```
 1. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or https://Echosim.io, play the game.
-1. _(Optional)_ Explore the project structure.  You should see folders for lambda and models, and skill.json file.
+1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
 	```
-	$ ls
-	lambda		models		skill.json
-	```
-1. Open the models folder.
-	```
-	$ cd models
-	```
-1. Open the interaction model file, en-US.json.
-	```
-	$ open en-US.json
+TODO: show tree structure and describe folders/files
 	```
 
 ## Task 4. Create In-Skill Products
