@@ -74,8 +74,34 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	```
 1. _(Optional)_ Familiarize yourself with the skill.  Using a device linked to your account, the Alexa Developer Console test simulator or https://Echosim.io, play the game.
 1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
-	```
-TODO: show tree structure and describe folders/files
+	```text
+	working [1]
+	|
+	| skill.json [2]
+	|
+	+-- lambda
+	|      |
+	|      +-- custom [3]
+	|             |
+	|             | index.js [4]
+	|             |
+	|             +-- languages [5]
+	|             |      |
+	|             |      |  en.js [6]
+	|             |
+	|             +-- node_modules
+	+-- models [7]
+	      |
+	      | en-US.json [8]
+
+	[1] This is the project root folder.  You should run the ASK-CLI from this folder.
+	[2] This the skill manifest.  The skill configuration is controlled by this file.
+	[3] This is the root folder of the Lambda function.  Everything in this folder is uploaded to Lambda as the deployment package.
+	[4] This is the code file designated as the Lambda handler.  All the workshop code is in this file.
+	[5] If you want to extend the skill to other languages/locales using the i18next framework, you can place other language/locale files you reference in this folder.
+	[6] This is the file which holds the English translations for the strings used by the skill code. 
+	[7] This is the folder which contains the interaction models for each locale.
+	[8] This is the en-US (English, United States) interaction model.
 	```
 
 ## Task 4. Create In-Skill Products
