@@ -89,10 +89,10 @@ If you are not using Cloud9, and don't have git installed, click this [link](htt
 	|             |      |
 	|             |      |  en.js [6]
 	|             |
-	|	            +-- node_modules
+	|             +-- node_modules
 	+-- models [7]
-				|
-				| en-US.json [8]
+	      |
+	      | en-US.json [8]
 
 	[1] This is the project root folder.  You should run the ASK-CLI from this folder.
 	[2] This the skill manifest.  The skill configuration is controlled by this file.
