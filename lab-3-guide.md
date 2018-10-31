@@ -31,7 +31,7 @@ In this lab we will update the IAM role used by the Lambda function so that the 
                     "dynamodb:GetItem",
                     "dynamodb:UpdateItem"
                 ],
-                "Resource": "arn:aws:dynamodb:::table/NameTheShow"
+                "Resource": "arn:aws:dynamodb:*:*:table/NameTheShow"
             }
         ]
     }
