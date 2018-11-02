@@ -32,7 +32,7 @@ The ASK CLI is required to complete this lab.  If you do not have it setup on yo
 If you already have the ASK CLI working, you can skip to the next section.
 
 1. Sign in to your AWS Account
-1. Navigate to [Cloud9](https://console.aws.amazon.com/cloud9/home?region=us-east-1)
+1. Navigate to [Cloud9](https://console.aws.amazon.com/cloud9/home)
 1. Create an environment
 1. Accept the defaults and click Next
 1. Review and click Create Environment
@@ -63,7 +63,7 @@ If you already have the ASK CLI working, you can skip to the next section.
 
 	This sets an environment variable which allows the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
 
-1. **IMPORTANT** For the new environment variable to be usable, _**CLOSE**_ the current terminal session (enter `exit`) and launch a new terminal session (click the **+** and then select **New Terminal**)
+1. **IMPORTANT** For the new environment variable to be usable, close the current terminal session (enter `exit` or click the **x** on the terminal tab) and launch a new terminal session (click the **+** and then select **New Terminal**)
 
 ## Task 2. Download Workshop Code
 
@@ -94,15 +94,7 @@ If you are not using Cloud9, and don't have git installed, you can [download the
 
 	> NOTE: if you receive an error that says _"Simulation did not result to an intent belonging to this skill."_, you may have a live skill enabled with the same invocation phrase, in this case *name the show*. Be sure to disable any other skills that may conflict.
 
-1. _(Optional)_ Familiarize yourself with the skill. Use the developer portal to test your skill's interactions, via: (https://developer.amazon.com/alexa/console/ask/build/custom/{SKILL_ID}/development/en_US/dashboard) where {SKILL_ID} is the skill ID assigned *after* you've deployed, which will be in: `~/environment/workshop-in-skill-purchasing/working/.ask/config` if you've followed these instructions.
-
-	> Or run something like the below to generate a link:
-	```
-	cat ./.ask/config | \
-	python -c 'import json,sys;obj=json.load(sys.stdin);print("\n\nYour skill Test console:\nhttps://developer.amazon.com/alexa/console/ask/test/%s/development/en_US/\n" % obj["deploy_settings"]["default"]["skill_id"]);' 
-	```
-
-1. _(Optional)_ Also consider testing with https://Echosim.io, or using the Alexa Companion App (in iOS or Android) to play the game.
+1. _(Optional)_ Familiarize yourself with the skill. Use the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) to test your skill's interactions.  Once logged into the developer cosnole, click on your skill in the list (it should be the first one).
 
 1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
 	```text
