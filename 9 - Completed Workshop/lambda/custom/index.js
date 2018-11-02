@@ -95,11 +95,12 @@ const BuyHintHandler = {
       handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
   },
   async handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
     // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
     // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
     persistentAttributes.currentSession = sessionAttributes;
     handlerInput.attributesManager.savePersistentAttributes();
 
@@ -134,12 +135,12 @@ const CancelPurchaseHandler = {
       handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
   },
   async handle(handlerInput) {
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
     // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
     // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-
     persistentAttributes.currentSession = sessionAttributes;
     handlerInput.attributesManager.savePersistentAttributes();
 
@@ -175,15 +176,16 @@ const BuyHintResponseHandler = {
         handlerInput.requestEnvelope.request.name === 'Buy');
   },
   async handle(handlerInput) {
-    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
     // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
     if (persistentAttributes.currentSession !== undefined) {
       sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
       sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
     }
+    
     console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
 
     let speakOutput = '';

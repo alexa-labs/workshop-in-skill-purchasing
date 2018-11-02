@@ -33,22 +33,18 @@ If you already have the ASK CLI working, you can skip to the next section.
 
 1. Sign in to your AWS Account
 1. Navigate to [Cloud9](https://console.aws.amazon.com/cloud9/home)
-1. Create an environment
+1. Create an environment and name it "ASK Workshop"
 1. Accept the defaults and click Next
 1. Review and click Create Environment
 1. Wait a few minutes while the environment is created.
-1. Once the environment is ready, enter the following command to install the ASK CLI.
-	
+1. Once the environment is ready, enter the following command in the bash terminal that is created by default.  This command installs the ASK CLI.
 	```
 	npm install ask-cli -g
 	``` 
-
 1. Configure the ASK CLI by entering the command 
-
 	```
 	ask init --no-browser
 	```
-
 1. Press **ENTER** to use the default profile.  This will use the temporary AWS credentials managed by Cloud9.  Click [here](https://docs.aws.amazon.com/cloud9/latest/user-guide/auth-and-access-control.html#auth-and-access-control-temporary-managed-credentials) to learn more about Temporary Credentials.
 1. Click the link which is generated.  Click **Open** in the pop-up menu.  This will open a new tab in your browser.  You will need to sign in to your Amazon Developer account.
 1. Once you grant permissions, a code will appear in the browser. Copy this code.
@@ -56,13 +52,10 @@ If you already have the ASK CLI working, you can skip to the next section.
 1. If you have more than one Vendor ID associated with your login, select the one you want to use.
 	> If your Vendor ID cannot be retrieved (error message is 'call list-vendors error' / 401 / 'You are not authorized to access this operation'), it typically means you haven't fully created your Developer Account.  Return to https://developer.amazon.com/alexa-skills-kit and finish providing the requested data.
 1. Now that the ASK CLI is installed and configured, there's one last step to get it to work with Cloud9 Temporary Credentials.  Enter the following command:
-	
 	```
 	echo 'export ASK_DEPLOY_ROLE_PREFIX=Cloud9-' >> ~/.bashrc
 	```
-
 	This sets an environment variable which allows the ASK CLI to create IAM roles compatible with Cloud9 Temporary Credential restrictions.
-
 1. **IMPORTANT** For the new environment variable to be usable, close the current terminal session (enter `exit` or click the **x** on the terminal tab) and launch a new terminal session (click the **+** and then select **New Terminal**)
 
 ## Task 2. Download Workshop Code
@@ -70,12 +63,11 @@ If you already have the ASK CLI working, you can skip to the next section.
 Now that the prerequisites are taken care of, let's get the base skill setup.
 
 1. Clone the workshop repo with this command:
-
 	```
 	git clone https://github.com/alexa/workshop-in-skill-purchasing
 	```
-
-If you are not using Cloud9, and don't have git installed, you can [download the latest archive](https://github.com/alexa/workshop-in-skill-purchasing/archive/master.zip) to get the entire repo.  Once downloaded, unzip it.
+	> If you are not using Cloud9, and don't have git installed, you can [download the latest archive](https://github.com/alexa/workshop-in-skill-purchasing/archive/master.zip) to get the entire repo.  Once downloaded, unzip it.
+	> If you have downloaded the archive to your local comupter, you can upload the file into your Cloud9 file system.  Drag and drop the archive on to the root folder in navigation pane of your Cloud9 instance.  By default, the root folder is *~/environment*.  From the terminal, enter `unzip <filename>` to unzip the file.
 
 ## Task 3. Deploy and Test the Base Skill
 
@@ -94,7 +86,7 @@ If you are not using Cloud9, and don't have git installed, you can [download the
 
 	> NOTE: if you receive an error that says _"Simulation did not result to an intent belonging to this skill."_, you may have a live skill enabled with the same invocation phrase, in this case *name the show*. Be sure to disable any other skills that may conflict.
 
-1. _(Optional)_ Familiarize yourself with the skill. Use the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) to test your skill's interactions.  Once logged into the developer cosnole, click on your skill in the list (it should be the first one).
+1. _(Optional)_ Familiarize yourself with the skill. Use the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) to test your skill's interactions.  Once logged into the developer cosnole, click on your skill in the list (it should be the first one).  Then click on the "Test" tab.
 
 1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
 	```text
@@ -131,7 +123,7 @@ If you are not using Cloud9, and don't have git installed, you can [download the
 
 There are ASK CLI commands for creating your in-skill purchases.  This section will walk you through creating the Consumable In-Skill Products.  
 
-1. Create your first in-skill product.  You should be in the project's root directory.
+1. Create your first in-skill product.  You should be in the project's root directory.  For this workshop, that's the *working* folder (~/environment/workshop-in-skill-purchasing/working).
 	```
 	ask add isp
 	```
@@ -180,25 +172,23 @@ Field|Description|Value for Workshop
 `releaseDate`|The first date the product is available for purhcase.|2018-10-01
 `privacyPolicyUrl`|A URL to the privacy policy for this locale.|https://localhost/privacy.html
 
-  Now that you have customized your in-skill product, you can deploy your ISP.  Before you publish your skill, you should complete the remaining fields.
-
-  > Need help creating icons for your ISP or skill? Check out the [Alexa Skill Icon Builder](https://developer.amazon.com/docs/tools/icon-builder.html)
+> Need help creating icons for your ISP or skill? Check out the [Alexa Skill Icon Builder](https://developer.amazon.com/docs/tools/icon-builder.html)
 
 ## Task 5. ISP Deployment
 
-1. **Navigate** to the project's root directory. You should see a file named 'skill.json' there.
-
+1. Now that you have customized your in-skill product, you can deploy your ISP.  Before you publish your skill, you should complete the remaining fields.
+1. If you haven't already, save **Five_Hint_Pack.json**.
+1. In the terminal, **navigate** to the project's root directory. You should see a file named 'skill.json' there.
 	```
 	cd ../..
 	```
-
-2. **Deploy** the In-Skill Product by running the following command:
-
+1. **Deploy** the In-Skill Product by running the following command:
 	```
 	ask deploy --target isp
 	```
 
-	Alternatively you can use `ask deploy` without the `--target isp` modifier, however it will redeploy your entire skill -- the manifest, the interaction model and the lambda code, as well as re-build your interaction model -- which can take a few minutes.  If there were no changes to the skill other than creating the ISP's, then you can target your deployment.  Enter `ask deploy --help` for the full list of the target options and other usage information.
+	> Alternatively you can use `ask deploy` without the `--target isp` modifier, however it will redeploy your entire skill -- the manifest, the interaction model and the lambda code, as well as re-build your interaction model -- which can take a few minutes.  If there were no changes to the skill other than creating the ISP's, then you can target your deployment.  Enter `ask deploy --help` for the full list of the target options and other usage information.
+	> If the deploy
 
 ## Lab 1 Recap
 
@@ -210,3 +200,5 @@ Congrats!  By following these steps you should have accomplished these goals:
 Continue the workshop in [Lab 2](./lab-2-guide.md)
 
 Having trouble?  Not sure you're on the right path? Check out [Completed Lab 1](./2%20-%20Lab%201%20Completed/)
+
+\###

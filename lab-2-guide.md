@@ -28,7 +28,7 @@ In this lab, you will update the voice interaction model and skill code to work 
                     },
     ```
     As you can see in the JSON snippet, you are defining the name of the intent, the slots (there are none for this intent), and the sample utterances which teach Alexa how to recognize someone is intending to trigger this intent.
-1. Repeat this process to add the CancelPurchaseIntent
+1. Copy and paste the following after the BuyHintIntent to add the CancelPurchaseIntent:
     ```
                     {
                         "name": "CancelPurchaseIntent",
@@ -46,15 +46,11 @@ In this lab, you will update the voice interaction model and skill code to work 
 ## Task 2. Update skill code
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
-1. Update the **useHint** helper function to make an upsell when clues are available and the user doesn't have any hints to use.  Do this by locating the **lab-2-task-2-a** marker and pasting in the following code between the start and end markers:
+1. Update the **HintHandler** helper function to make an upsell when clues are available and the user doesn't have any hints to use.  Do this by locating the **lab-2-task-2-a** marker and pasting in the following code between the start and end markers:
     ```javascript
         // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
 
-        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
-        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
+        // lab-3-task-4-g
 
         const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
@@ -89,15 +85,11 @@ In this lab, you will update the voice interaction model and skill code to work 
             handlerInput.requestEnvelope.request.name === 'Buy');
       },
       async handle(handlerInput) {
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
-        if (persistentAttributes.currentSession !== undefined) {
-          sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
-          sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
-        }
+        // lab-3-task-4-h
+
         console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
 
         let speakOutput = '';
@@ -119,9 +111,7 @@ In this lab, you will update the voice interaction model and skill code to work 
           speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
         }
 
-        // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
-        persistentAttributes.currentSession = undefined;
-        handlerInput.attributesManager.savePersistentAttributes();
+        // lab-3-task-4-i
 
         return handlerInput.responseBuilder
           .speak(speakOutput)
@@ -130,7 +120,7 @@ In this lab, you will update the voice interaction model and skill code to work 
       },
     };
     ```
-1. Repeat this for the **CancelPurchaseHandler**:
+1. Copy and paste the following after the BuyHintResponseHandler:
     ```javascript
     const CancelPurchaseHandler = {
       canHandle(handlerInput) {
@@ -138,15 +128,11 @@ In this lab, you will update the voice interaction model and skill code to work 
           handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
       },
       async handle(handlerInput) {
-        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
-        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
         const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
-
+        // lab-3-task-4-j
+        
         const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
         return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
@@ -172,7 +158,7 @@ In this lab, you will update the voice interaction model and skill code to work 
       },
     };
     ```
-1. Repeat this for the **BuyHintHandler**:
+1. Copy and paste the following after the CancelPurchaseHandler:
     ```javascript
     const BuyHintHandler = {
       canHandle(handlerInput) {
@@ -180,13 +166,9 @@ In this lab, you will update the voice interaction model and skill code to work 
           handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
       },
       async handle(handlerInput) {
-        // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
-        // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
-        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
         const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
-        persistentAttributes.currentSession = sessionAttributes;
-        handlerInput.attributesManager.savePersistentAttributes();
+
+        // lab-3-task-4-k        
 
         const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
@@ -255,16 +237,18 @@ In this lab, you will update the voice interaction model and skill code to work 
 
 ## Task 4. Deploy Updated Skill
 
-1. From the root of the project (the folder with skill.json), enter `ask deploy` to deploy your updated interaction model and lambda function.
+1. From the root of the project (the folder with skill.json), enter `ask deploy` to deploy your updated interaction model and lambda function.  This may take a few minutes to complete.
 
 ## Task 5. Test Your Skill
 
 1. To test, login to [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask), click on the **Name The Show** entry in your skill list, and click on the "Test" tab.  The "Test" switch on your skill should have been automatically enabled.  If it was not, enable it now.
-1. Your skill can now also be tested on devices associated with your developer account. Start testing your skill by typing or saying:
+1. Start testing your skill by typing:
 	```text
-	Alexa, open name the show
+	open name the show
 	```
     > Note: using the invocation name of 'Alexa' is not required when using the simulator in the Developer Console.
+
+    > Your skill can now also be tested on devices associated with your developer account. 
 
     > **IMPORTANT: The developer account associated with the skill is never charged for in-skill products.**  For more details about testing skills with in-skill products, please refer to the [In-Skill Purchase Testing Guide](https://developer.amazon.com/docs/in-skill-purchase/isp-test-guide.html)
 1. Play the game.  Be sure to ask for hints so you can test out purchasing them.  Your purchases won't be persisted across sessions, and you can't yet check your inventory levels.
@@ -280,3 +264,5 @@ Congrats!  By following these steps you should have accomplished these goals:
 Continue the workshop in [Lab 3](./lab-3-guide.md)
 
 Having trouble?  Not sure you're on the right path? Check out [Completed Lab 2](./4%20-%20Lab%202%20Completed/)
+
+\###

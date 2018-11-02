@@ -23,10 +23,28 @@ In this lab we will update the IAM role used by the Lambda function so that the 
         "Version": "2012-10-17",
         "Statement": [
             {
-                "Sid": "NameTheShowDynamoDBAccess",
+                "Sid": "NameTheShowDynamoDBCreationAndAccess",
                 "Effect": "Allow",
                 "Action": [
                     "dynamodb:CreateTable",
+                    "dynamodb:PutItem",
+                    "dynamodb:GetItem",
+                    "dynamodb:UpdateItem"
+                ],
+                "Resource": "arn:aws:dynamodb:*:*:table/NameTheShow"
+            }
+        ]
+    }
+    ```
+    For the purposes of the workshop, it is recommened to use the table auto-creation feature.  However if you prefer to manually create the DynamoDB table instead of having the SDK automatically create it for you, use the following policy instead.  The steps to create the table will come in a later Task.
+    ```
+    {
+        "Version": "2012-10-17",
+        "Statement": [
+            {
+                "Sid": "NameTheShowDynamoDBAccessOnly",
+                "Effect": "Allow",
+                "Action": [
                     "dynamodb:PutItem",
                     "dynamodb:GetItem",
                     "dynamodb:UpdateItem"
@@ -59,9 +77,11 @@ In the **models** folder of your skill, locate the `en-US.json` file.  This is t
                 },
  ```
 
- Save and close the file.
+Save and close the file.
 
 ## Task 3. Update the Skill Builder to persist using a DynamoDB table.
+
+If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
 1. Update the Skill Builder object to use DynamoDB by locating the **lab-3-task-3** marker and adding the following chained method calls:
@@ -75,7 +95,19 @@ In the **models** folder of your skill, locate the `en-US.json` file.  This is t
 
 ### (Optional) Task 3-Alt. Manual DDB Table Creation
 
-TODO - add manual DDB creation steps
+1. Open the **index.js** file in your **/lambda/custom** folder.
+1. Update the Skill Builder object to use DynamoDB by locating the **lab-3-task-3** marker and adding the following chained method calls:
+    ```
+      .withTableName('NameTheShow')
+    ```
+1. Save and (optionally) close the file.
+1. Navigate to the Amazon DyanmoDB console: https://console.aws.amazon.com/dynamodb/home
+1. Click *Create table*.
+1. Enter *NameTheShow* into the Table name field. (Note: the capitalization must match)
+1. Enter *id* as the Partition key.  Leave the type as String.  (Note: capitalization must match.)
+1. _(Optional)_ Change the table settings.  Accepting the default settings is adequate for the purpsoe of this workshop.
+1. Click *Create*.
+1. It may take a few minutes for the table to be created, however you can continue with the workshop while this is happening in the background.
 
 ## Task 4. Update the Skill Code to Check Inventory
 
@@ -168,6 +200,46 @@ TODO - add manual DDB creation steps
       handlerInput.attributesManager.savePersistentAttributes();
     }
     ```
+1. Update the **HintHandler** function to use peristent attributes by locating the **lab-3-task-4-g** label and pasting in the following code:
+    ```javascript
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+    ```
+1. Update the **BuyHintResponseHandler** function to re-hydrate the session when restarting after the making the Upsell or Buy request.  Locate the **lab-3-task-4-h** label and paste in the following code:
+    ```javascript
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
+    if (persistentAttributes.currentSession !== undefined) {
+        sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
+        sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
+    }
+    ```
+1. Update the **BuyHintResponseHandler** function to clear the persisted sesssion by locating the **lab-3-task-4-i** label and pasting in the following code:
+    ```javascript
+    // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
+    persistentAttributes.currentSession = undefined;
+    handlerInput.attributesManager.savePersistentAttributes();
+    ```
+1. Update the **CancelPurchaseHandler** function to save the session when making the Cancel request.  Locate the **lab-3-task-4-j** label and paste in the following code:
+    ```javascript
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+    ```
+1. Update the **BuyHintHandler** function to save the session when making the Buy request.  Locate the **lab-3-task-4-k** label and paste in the following code:
+    ```javascript
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+    ```
 1. Save and close **index.js**
 
 ## Task 5. Deploy Updated Skill
@@ -197,6 +269,6 @@ Having trouble?  Not sure you're on the right path? Check out the [Completed Wor
 
 # Congratulations!!!
 
-You made it!  If you were able to successfully purchase hints, you are on your way to successfully monetizing your skill.  Check out (next step)[./next-steps.md] for more information on where to go next!
+You made it!  If you were able to successfully purchase hints, you are on your way to successfully monetizing your skill.  Check out [next step](./next-steps.md) for more information on where to go next!
 
-/###
+\###
