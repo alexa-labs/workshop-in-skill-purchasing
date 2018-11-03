@@ -13,6 +13,8 @@ Congratulations on finishing the workshop!  Now that you know your way around In
 
 ### Setup CLI in your preferred development environment
 
+In today's workshop, we used AWS Cloud9.   If you want to setup the ASK CLI on your local machine instead of using Cloud9, follow the directions [here](https://alexa.design/cli). 
+
 ### Add Premium Content and ISP’s to your skill
 
 ### Consider adding additional analytics within your skill

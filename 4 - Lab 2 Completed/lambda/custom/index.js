@@ -97,6 +97,8 @@ const BuyHintHandler = {
   async handle(handlerInput) {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
+    // lab-3-task-4-k  
+
     const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
     return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
@@ -129,6 +131,8 @@ const CancelPurchaseHandler = {
   },
   async handle(handlerInput) {
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+    // lab-3-task-4-j
 
     const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
@@ -165,6 +169,10 @@ const BuyHintResponseHandler = {
     const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
     const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
 
+    // lab-3-task-4-h
+
+    console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
+
     let speakOutput = '';
 
     // IF THE USER DECLINED THE PURCHASE.
@@ -183,6 +191,8 @@ const BuyHintResponseHandler = {
       // IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
       speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
     }
+
+    // lab-3-task-4-i
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
@@ -277,6 +287,9 @@ const HintHandler = {
         .getResponse();
     }
     // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
+
+    // lab-3-task-4-g
+    
     const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
 
     return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
