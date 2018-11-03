@@ -4,6 +4,8 @@ TODO - check against final prezo
 TODO - finish this page
 
 * Setup CLI in your preferred development environment
+In today's workshop, we used Cloud9.   If you want to setup the ASK CLI on your local machine instead of using Cloud9, follow the directions [here](https://alexa.design/cli). 
+
 * Add ISP’s to your skill
 * Consider adding additional analytics within your skill
 * Conduct a Beta Test (tweet me and I’ll be a beta tester for your skill)

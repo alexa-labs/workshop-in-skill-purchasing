@@ -31,6 +31,8 @@ The ASK CLI is required to complete this lab.  If you do not have it setup on yo
 
 If you already have the ASK CLI working, you can skip to the next section.
 
+If you want to setup the ASK CLI on your local machine instead of using Cloud9, follow the directions [here](https://alexa.design/cli). 
+
 1. Sign in to your AWS Account
 1. Navigate to [Cloud9](https://console.aws.amazon.com/cloud9/home)
 1. Create an environment and name it "ASK Workshop"
