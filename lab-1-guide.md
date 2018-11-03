@@ -1,5 +1,9 @@
 # Lab 1
 
+## Overview
+
+In this lab, you will setup the workshop prerequisities, deploy the base skill and add a product to the In-Skill Product Catalog.  The prerequisites include the Amazon Developer account, which allows you access to the Alexa Skills Kit, the platform on which Alexa Skills are built.  A second prerequisite
+
 ### Objectives
 * Setup Prerequisties
 * Deploy Base Workshop Skill
