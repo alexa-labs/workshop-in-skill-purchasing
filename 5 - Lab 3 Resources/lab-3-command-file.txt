@@ -1,0 +1,203 @@
+# Lab 3
+
+## Task 1. Update the AWS IAM Role to allow Amazon DynamoDB Access
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "NameTheShowDynamoDBCreationAndAccess",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:CreateTable",
+                "dynamodb:PutItem",
+                "dynamodb:GetItem",
+                "dynamodb:UpdateItem"
+            ],
+            "Resource": "arn:aws:dynamodb:*:*:table/NameTheShow"
+        }
+    ]
+}
+
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "NameTheShowDynamoDBAccessOnly",
+            "Effect": "Allow",
+            "Action": [
+                "dynamodb:PutItem",
+                "dynamodb:GetItem",
+                "dynamodb:UpdateItem"
+            ],
+            "Resource": "arn:aws:dynamodb:*:*:table/NameTheShow"
+        }
+    ]
+}
+
+NameTheShowDynamoDBAccess
+
+## Task 2. Update Voice Interaction Model (VUI)
+
+              {
+                  "name": "HintInventoryIntent",
+                  "slots": [],
+                  "samples": [
+                      "how many hints do I have left",
+                      "how many hints do I have",
+                      "how many hints remain",
+                      "how many hints"
+                  ]
+              },
+
+## Task 3. Update the Skill Builder to persist using a DynamoDB table.
+
+      .withTableName('NameTheShow')
+      .withAutoCreateTable(true)
+
+### (Optional) Task 3-Alt. Manual DDB Table Creation
+
+
+      .withTableName('NameTheShow')
+
+NameTheShow
+
+id
+
+## Task 4. Update the Skill Code to Check Inventory
+
+### lab-3-task-4-a
+
+    const HintInventoryHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+          handlerInput.requestEnvelope.request.intent.name === 'HintInventoryIntent';
+      },
+      handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+        const speakOutput = requestAttributes.t('REPLAY_PROMPT', sessionAttributes.hintsAvailable);
+        const repromptOutput = speakOutput;
+
+        return handlerInput.responseBuilder
+          .speak(speakOutput)
+          .reprompt(repromptOutput)
+          .getResponse();
+      },
+    };
+
+### lab-3-task-4-b
+
+        HintInventoryHandler,
+
+### lab-3-task-4-c
+
+    const CheckInventoryInterceptor = {
+      async process(handlerInput) {
+        await checkInventory(handlerInput);
+      },
+    };
+
+### lab-3-task-4-d
+
+        CheckInventoryInterceptor,
+
+### lab-3-task-4-e
+
+    async function checkInventory(handlerInput) {
+      const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+      if (persistentAttributes.hintsUsed === undefined) persistentAttributes.hintsUsed = 0;
+      if (persistentAttributes.hintsPurchased === undefined) persistentAttributes.hintsPurchased = 0;
+
+      const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+      return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+        if (res.inSkillProducts.length > 0) {
+          const hintpack = res.inSkillProducts[0];
+
+          // x5 because each purchase contains five hints.
+          const hintsPurchased = (hintpack.activeEntitlementCount * 5);
+          // Will differ per skill/product implementation
+
+          if (persistentAttributes.hintsPurchased > hintsPurchased) {
+            // THIS CAN HAPPEN IF A CUSTOMER RETURNS AN ACCIDENTAL PURCHASE.
+            // YOU SHOULD RESET THEIR TOTALS TO REFLECT THAT RETURN.
+            persistentAttributes.hintsPurchased = hintsPurchased;
+
+            if (persistentAttributes.hintsUsed > hintsPurchased) {
+              // IF THE USER HAS USED MORE HINTS THAN THEY HAVE PURCHASED,
+              // SET THEIR TOTAL "USED" TO THE TOTAL "PURCHASED."
+              persistentAttributes.hintsUsed = hintsPurchased;
+            }
+          } else if (persistentAttributes.hintsPurchased < hintsPurchased) {
+            // THIS SHOULDN'T HAPPEN UNLESS WE FORGOT TO MANAGE OUR INVENTORY PROPERLY.
+            persistentAttributes.hintsPurchased = hintsPurchased;
+          }
+        }
+
+        sessionAttributes.hintsAvailable = persistentAttributes.hintsPurchased
+          - persistentAttributes.hintsUsed;
+        handlerInput.attributesManager.savePersistentAttributes();
+      });
+    }
+
+### lab-3-task-4-f
+
+    async function useHint(handlerInput) {
+      const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+      const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+
+      sessionAttributes.hintsAvailable -= 1;
+      persistentAttributes.hintsUsed += 1;
+      handlerInput.attributesManager.savePersistentAttributes();
+    }
+
+### lab-3-task-4-g
+
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+
+### lab-3-task-4-h
+
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    // REHYDRATE SESSION ATTRIBUTES AFTER RETURNING FROM THE CONNECTIONS DIRECTIVE.
+    if (persistentAttributes.currentSession !== undefined) {
+        sessionAttributes.currentShow = persistentAttributes.currentSession.currentShow;
+        sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
+    }
+
+### lab-3-task-4-i
+
+    // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
+    persistentAttributes.currentSession = undefined;
+    handlerInput.attributesManager.savePersistentAttributes();
+
+### lab-3-task-4-j
+
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+ 
+ ### lab-3-task-4-k
+ 
+    // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
+    // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const persistentAttributes = await handlerInput.attributesManager.getPersistentAttributes();
+    persistentAttributes.currentSession = sessionAttributes;
+    handlerInput.attributesManager.savePersistentAttributes();
+ 
+## Task 5. Deploy Updated Skill
+
+ask deploy
+
+## Task 6. Test Your Skill
+
+open name the show

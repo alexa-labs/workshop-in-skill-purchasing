@@ -36,7 +36,7 @@ In this lab we will update the IAM role used by the Lambda function so that the 
         ]
     }
     ```
-    For the purposes of the workshop, it is recommened to use the table auto-creation feature.  However if you prefer to manually create the DynamoDB table instead of having the SDK automatically create it for you, use the following policy instead.  The steps to create the table will come in a later Task.
+    For the purposes of the workshop, it is recommended to use the table auto-creation feature.  However if you prefer to manually create the DynamoDB table instead of having the SDK automatically create it for you, use the following policy instead.  The steps to create the table will come in a later Task.
     ```
     {
         "Version": "2012-10-17",
@@ -81,7 +81,7 @@ Save and close the file.
 
 ## Task 3. Update the Skill Builder to persist using a DynamoDB table.
 
-If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
+If you are manually creating your DynamoDB table, skip to *Task 3-Alt*.
 
 1. Open the **index.js** file in your **/lambda/custom** folder.
 1. Update the Skill Builder object to use DynamoDB by locating the **lab-3-task-3** marker and adding the following chained method calls:
@@ -101,11 +101,11 @@ If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
       .withTableName('NameTheShow')
     ```
 1. Save and (optionally) close the file.
-1. Navigate to the Amazon DyanmoDB console: https://console.aws.amazon.com/dynamodb/home
+1. Navigate to the Amazon DynamoDB console: https://console.aws.amazon.com/dynamodb/home
 1. Click *Create table*.
 1. Enter *NameTheShow* into the Table name field. (Note: the capitalization must match)
 1. Enter *id* as the Partition key.  Leave the type as String.  (Note: capitalization must match.)
-1. _(Optional)_ Change the table settings.  Accepting the default settings is adequate for the purpsoe of this workshop.
+1. _(Optional)_ Change the table settings.  Accepting the default settings is adequate for the purpose of this workshop.
 1. Click *Create*.
 1. It may take a few minutes for the table to be created, however you can continue with the workshop while this is happening in the background.
 
@@ -200,7 +200,7 @@ If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
       handlerInput.attributesManager.savePersistentAttributes();
     }
     ```
-1. Update the **HintHandler** function to use peristent attributes by locating the **lab-3-task-4-g** label and pasting in the following code:
+1. Update the **HintHandler** function to use persistent attributes by locating the **lab-3-task-4-g** label and pasting in the following code:
     ```javascript
     // SAVING SESSION ATTRIBUTES TO PERSISTENT ATTRIBUTES,
     // BECAUSE THE SESSION EXPIRES WHEN WE START A CONNECTIONS DIRECTIVE.
@@ -217,7 +217,7 @@ If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
         sessionAttributes.currentActors = persistentAttributes.currentSession.currentActors;
     }
     ```
-1. Update the **BuyHintResponseHandler** function to clear the persisted sesssion by locating the **lab-3-task-4-i** label and pasting in the following code:
+1. Update the **BuyHintResponseHandler** function to clear the persisted session by locating the **lab-3-task-4-i** label and pasting in the following code:
     ```javascript
     // CLEAR OUR OUR PERSISTED SESSION ATTRIBUTES.
     persistentAttributes.currentSession = undefined;
@@ -249,14 +249,19 @@ If you are manually creating your DynaomDB table, skip to *Task 3-Alt*.
 ## Task 6. Test Your Skill
 
 1. To test, login to [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask), click on the **Name The Show** entry in your skill list, and click on the "Test" tab.  The "Test" switch on your skill should have been automatically enabled.  If it was not, enable it now.
-1. Your skill can now also be tested on devices associated with your developer account. Start testing your skill by typing or saying:
+1. Start testing your skill by typing:
 	```text
-	Alexa, open name the show
+	open name the show
 	```
     > Note: using the invocation name of 'Alexa' is not required when using the simulator in the Developer Console.
 
     > **IMPORTANT: The developer account associated with the skill is never charged for in-skill products.**  For more details about testing skills with in-skill products, please refer to the [In-Skill Purchase Testing Guide](https://developer.amazon.com/docs/in-skill-purchase/isp-test-guide.html)
 1. Play the game.  Be sure to ask for hints so you can test out purchasing them.
+1. (Optional) Test your skill again using an Echo device, like an Echo Dot or an Echo Show. Start testing your skill by saying:
+	```text
+	Alexa, open name the show
+	```
+    > If the device is using a different invocation word, use that instead of Alexa.
 
 ## Lab 3 Recap
 

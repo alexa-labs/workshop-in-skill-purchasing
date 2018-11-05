@@ -1,0 +1,65 @@
+# Lab 1
+
+## Task 1. Setup Prerequisites
+
+### Alexa Skills Kit Command Line Interface (ASK CLI)
+
+npm install ask-cli -g
+
+ask init --no-browser
+
+echo 'export ASK_DEPLOY_ROLE_PREFIX=Cloud9-' >> ~/.bashrc
+
+## Task 2. Download Workshop Code
+
+git clone https://github.com/alexa/workshop-in-skill-purchasing
+
+## Task 3. Deploy and Test the Base Skill
+
+cd workshop-in-skill-purchasing
+
+cd working
+
+ask deploy
+
+ask simulate -l en-US -t "open name the show"
+
+## Task 4. Create In-Skill Products
+
+ask add isp
+
+Five_Hint_Pack
+
+cd isps
+
+ls
+
+cd consumable
+
+ls
+
+Five Hint Pack
+
+https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_108.png
+
+https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_512.png
+
+The Five Hint Pack will give you five hints to help you solve our questions.
+
+The Five Hint Pack will give you five hints to help you solve our questions.
+
+This will give you five hints to help you solve our questions.
+
+You have successfully purchased the five hint pack! 
+
+2018-10-01
+
+https://localhost/privacy.html
+
+## Task 5. ISP Deployment
+
+cd ../..
+
+ask deploy --target isp
+
+### 

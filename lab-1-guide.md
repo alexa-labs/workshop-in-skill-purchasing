@@ -2,7 +2,7 @@
 
 ## Overview
 
-In this lab, you will setup the workshop prerequisities, deploy the base skill and add a product to the In-Skill Product Catalog.  The prerequisites include the Amazon Developer account, which allows you access to the Alexa Skills Kit, the platform on which Alexa Skills are built.  A second prerequisite
+In this lab, you will setup the workshop prerequisites, deploy the base skill and add a product to the In-Skill Product Catalog.  The prerequisites include the Amazon Developer account, which allows you access to the Alexa Skills Kit, the platform on which Alexa Skills are built.  A second prerequisite
 
 ### Objectives
 * Setup Prerequisites
@@ -92,7 +92,7 @@ Now that the prerequisites are taken care of, let's get the base skill setup.
 
 	> NOTE: if you receive an error that says _"Simulation did not result to an intent belonging to this skill."_, you may have a live skill enabled with the same invocation phrase, in this case *name the show*. Be sure to disable any other skills that may conflict.
 
-1. _(Optional)_ Familiarize yourself with the skill. Use the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) to test your skill's interactions.  Once logged into the developer cosnole, click on your skill in the list (it should be the first one).  Then click on the "Test" tab.
+1. _(Optional)_ Familiarize yourself with the skill. Use the [Alexa Developer Console](https://developer.amazon.com/alexa/console/ask) to test your skill's interactions.  Once logged into the developer console, click on your skill in the list (it should be the first one).  Then click on the "Test" tab.
 
 1. _(Optional)_ Explore the project structure in the tree view.  You should see folders for lambda and models, and skill.json file.
 	```text
@@ -168,14 +168,14 @@ There are ASK CLI commands for creating your in-skill purchases.  This section w
 
 Field|Description|Value for Workshop
 -----|-----------|------------------
-`name`|The name of the product.  Used by Alexa when reporitng a purchase was successful.|Five Hint Pack
+`name`|The name of the product.  Used by Alexa when reporting a purchase was successful.|Five Hint Pack
 `smallIconUri`|Small icon used with product when displayed in the skill store or Alexa app.  |https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_108.png
 `largeIconUri`|Large icon used with product when displayed in the skill store or Alexa app.|https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_512.png
 `summary`|Summary description of the product.| The Five Hint Pack will give you five hints to help you solve our questions.
 `description`|A full description explaining the product's functionality and any prerequisites to using it.| The Five Hint Pack will give you five hints to help you solve our questions.
 `purchasePromptDescription`|The description of the product a customer hears when making a purchase or when they cancel a subscription.| This will give you five hints to help you solve our questions.
 `boughtCardDescription`|A description of the product that displays on the skill card in the Alexa app.| You have successfully purchased the five hint pack! 
-`releaseDate`|The first date the product is available for purhcase.|2018-10-01
+`releaseDate`|The first date the product is available for purchase.|2018-10-01
 `privacyPolicyUrl`|A URL to the privacy policy for this locale.|https://localhost/privacy.html
 
 > Need help creating icons for your ISP or skill? Check out the [Alexa Skill Icon Builder](https://developer.amazon.com/docs/tools/icon-builder.html)

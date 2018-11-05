@@ -1,6 +1,8 @@
 ## Workshop In Skill Purchasing
 
-This workshop covers buildling a sample skill which uses In-Skill Purchasing, specifically consumable products.
+This workshop covers building a sample skill which uses In-Skill Purchasing, specifically consumable products.
+
+[Jump Right to the Workshop's Labs](#The%20Workshop)
 
 ## The Skill
 
@@ -33,7 +35,7 @@ User: No
 
 The architecture of the skill consists of an AWS Lambda function which uses and Amazon DynamoDB table to store persistent attributes (including hint inventory) across user sessions.  The Skill's interaction model is managed by the Alexa Skills Kit, and the In-Skill Product catalog and Payment Flow is managed by the Alexa Monetization Service.  The Skill's handler logic is coded in node.js and utilizes the Alexa Skills Kit SDK (ASK SDK).
 
-Here is a detailed architecture dieagram:
+Here is a detailed architecture diagram:
 TODO - !image
 
 ## The Workshop
@@ -44,7 +46,7 @@ The starting state of the skill is such that the premium feature (the hints), ha
 
 ### Lab 1 - Setup and Product Configuration
 
-In Lab 1, you will setup the workshop prerequisities, deploy the base skill and add a product to the In-Skill Product Catalog.
+In Lab 1, you will setup the workshop prerequisites, deploy the base skill and add a product to the In-Skill Product Catalog.
 
 [Lab 1](./lab-1-guide.md)
 
@@ -56,7 +58,7 @@ In Lab 2, you will update the skill's voice interaction model to include intents
 
 ### Lab 3 - Persist and Manage Inventory
 
-In Lab 3, you will update the skill's inteaction model to include intents to check hint inventory levels, create the Amazon DynamoDB table which will store hint inventory levels, and update the skill's handler code to handle the new intent and persist the inventory levels in the data table.
+In Lab 3, you will update the skill's interaction model to include intents to check hint inventory levels, create the Amazon DynamoDB table which will store hint inventory levels, and update the skill's handler code to handle the new intent and persist the inventory levels in the data table.
 
 [Lab 3](./lab-3-guide.md)
 
