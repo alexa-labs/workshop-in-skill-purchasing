@@ -36,7 +36,7 @@ User: No
 The architecture of the skill consists of an AWS Lambda function which uses and Amazon DynamoDB table to store persistent attributes (including hint inventory) across user sessions.  The Skill's interaction model is managed by the Alexa Skills Kit, and the In-Skill Product catalog and Payment Flow is managed by the Alexa Monetization Service.  The Skill's handler logic is coded in node.js and utilizes the Alexa Skills Kit SDK (ASK SDK).
 
 Here is a detailed architecture diagram:
-TODO - !image
+![detailed architecture diagram](./workshop-architecture.png)
 
 ## The Workshop
 
