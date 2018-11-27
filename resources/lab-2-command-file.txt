@@ -1,0 +1,279 @@
+# Lab 2
+
+## Task 1. Update Voice Interaction Model (VUI)
+
+                    {
+                        "name": "BuyHintIntent",
+                        "slots": [],
+                        "samples": [
+                            "purchase more hints",
+                            "purchase hints",
+                            "get more hints",
+                            "buy hints",
+                            "buy more hints",
+                            "buy some hints"
+                        ]
+                    },
+                    {
+                        "name": "CancelPurchaseIntent",
+                        "slots": [],
+                        "samples": [
+                            "cancel my purchase",
+                            "return my hints",
+                            "cancel transaction",
+                            "stop purchase"
+                        ]
+                    },
+
+## Task 2. Update skill code
+
+### lab-2-task-2-a
+
+        // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
+
+        // lab-3-task-4-g
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+            return handlerInput.responseBuilder
+              .addDirective({
+                'type': 'Connections.SendRequest',
+                'name': 'Upsell',
+                'payload': {
+                  'InSkillProduct': {
+                    'productId': hintpack[0].productId,
+                  },
+                  'upsellMessage': requestAttributes.t('UPSELL_MESSAGE'),
+                },
+                'token': 'correlationToken',
+              })
+              .getResponse();
+          }
+          return handlerInput.responseBuilder
+            .speak(requestAttributes.t('CURRENTLY_UNAVAILABLE'))
+            .getResponse();
+        });
+
+### lab-2-task-2-a - Full HintHandler
+
+const HintHandler = {
+  canHandle(handlerInput) {
+    return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+      handlerInput.requestEnvelope.request.intent.name === 'HintIntent';
+  },
+  async handle(handlerInput) {
+    const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+    const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+    let speakOutput = '';
+    let repromptOutput = '';
+
+    // IF THE USER HAS ALREADY USED TWO HINTS ON THIS PUZZLE, DON'T LET THEM USE ANOTHER.
+    // WE DON'T HAVE MORE INFORMATION TO OFFER THEM.
+    if (sessionAttributes.currentActors.length === 3) {
+      speakOutput = requestAttributes.t('NO_MORE_CLUES', getClue(handlerInput));
+      repromptOutput = speakOutput;
+
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt(repromptOutput)
+        .getResponse();
+    } else if (sessionAttributes.hintsAvailable > 0) {
+      // IF THE USER HAS AVAILABLE HINTS, USE ONE.
+      useHint(handlerInput);
+      console.log(`CURRENT ACTOR = ${sessionAttributes.currentActors}`);
+      const randomActor = getRandomActor(sessionAttributes.currentActors);
+      console.log(`RANDOM ACTOR = ${randomActor}`);
+      sessionAttributes.currentActors += randomActor.toString();
+      speakOutput = requestAttributes.t('NEW_CLUE', getClue(handlerInput));
+      repromptOutput = speakOutput;
+
+      return handlerInput.responseBuilder
+        .speak(speakOutput)
+        .reprompt(repromptOutput)
+        .getResponse();
+    }
+    // OTHERWISE, OFFER THEM AN OPPORTUNITY TO BUY A HINT.
+
+    // lab-3-task-4-g
+    
+    const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+    return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+      const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+      if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+        return handlerInput.responseBuilder
+          .addDirective({
+            'type': 'Connections.SendRequest',
+            'name': 'Upsell',
+            'payload': {
+              'InSkillProduct': {
+                'productId': hintpack[0].productId,
+              },
+              'upsellMessage': requestAttributes.t('UPSELL_MESSAGE'),
+            },
+            'token': 'correlationToken',
+          })
+          .getResponse();
+      }
+      return handlerInput.responseBuilder
+        .speak(requestAttributes.t('CURRENTLY_UNAVAILABLE'))
+        .getResponse();
+    });
+  },
+};
+
+### lab-2-task-2-b
+
+    const BuyHintResponseHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+          (handlerInput.requestEnvelope.request.name === 'Upsell' ||
+            handlerInput.requestEnvelope.request.name === 'Buy');
+      },
+      async handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+        // lab-3-task-4-h
+
+        console.log(`SESSION ATTRIBUTES = ${JSON.stringify(sessionAttributes)}`);
+
+        let speakOutput = '';
+
+        // IF THE USER DECLINED THE PURCHASE.
+        if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'DECLINED') {
+          speakOutput = requestAttributes.t('NO_HINTS_FOR_NOW', getClue(handlerInput));
+        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED') {
+          // IF THE USER SUCCEEDED WITH THE PURCHASE.
+          if (sessionAttributes.currentActors !== undefined
+            && sessionAttributes.currentActors.length !== 3) {
+            useHint(handlerInput);
+            const randomActor = getRandomActor(sessionAttributes.currentActors);
+            sessionAttributes.currentActors += randomActor.toString();
+          }
+          speakOutput = requestAttributes.t('THANK_YOU', getClue(handlerInput));
+        } else if (handlerInput.requestEnvelope.request.payload.purchaseResult === 'ERROR') {
+          // IF SOMETHING ELSE WENT WRONG WITH THE PURCHASE.
+          speakOutput = requestAttributes.t('UNABLE_TO_SELL', getClue(handlerInput));
+        }
+
+        // lab-3-task-4-i
+
+        return handlerInput.responseBuilder
+          .speak(speakOutput)
+          .reprompt(speakOutput)
+          .getResponse();
+      },
+    };
+
+    const CancelPurchaseHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+          handlerInput.requestEnvelope.request.intent.name === 'CancelPurchaseIntent';
+      },
+      async handle(handlerInput) {
+        const sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+        // lab-3-task-4-j
+        
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+            return handlerInput.responseBuilder
+              .addDirective({
+                'type': 'Connections.SendRequest',
+                'name': 'Cancel',
+                'payload': {
+                  'InSkillProduct': {
+                    'productId': hintpack[0].productId,
+                  },
+                },
+                'token': 'correlationToken',
+              })
+              .getResponse();
+          }
+          return handlerInput.responseBuilder
+            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+            .getResponse();
+        });
+      },
+    };
+
+    const BuyHintHandler = {
+      canHandle(handlerInput) {
+        return handlerInput.requestEnvelope.request.type === 'IntentRequest' &&
+          handlerInput.requestEnvelope.request.intent.name === 'BuyHintIntent';
+      },
+      async handle(handlerInput) {
+        const requestAttributes = handlerInput.attributesManager.getRequestAttributes();
+
+        // lab-3-task-4-k        
+
+        const ms = handlerInput.serviceClientFactory.getMonetizationServiceClient();
+
+        return ms.getInSkillProducts(handlerInput.requestEnvelope.request.locale).then((res) => {
+          const hintpack = res.inSkillProducts.filter(record => record.referenceName === 'Five_Hint_Pack');
+          if (hintpack.length > 0 && hintpack[0].purchasable === 'PURCHASABLE') {
+            return handlerInput.responseBuilder
+              .addDirective({
+                'type': 'Connections.SendRequest',
+                'name': 'Buy',
+                'payload': {
+                  'InSkillProduct': {
+                    'productId': hintpack[0].productId,
+                  },
+                },
+                'token': 'correlationToken',
+              })
+              .getResponse();
+          }
+          return handlerInput.responseBuilder
+            .speak(requestAttributes.t('CANNOT_BUY_RIGHT_NOW'))
+            .getResponse();
+        });
+      },
+    };
+
+### lab-2-task-2-c
+
+    BuyHintHandler,
+    BuyHintResponseHandler,
+    CancelPurchaseHandler,
+
+### lab-2-task-2-d
+
+            ||
+          (handlerInput.requestEnvelope.request.type === 'Connections.Response' &&
+            handlerInput.requestEnvelope.request.name === 'Cancel' &&
+            handlerInput.requestEnvelope.request.payload.purchaseResult === 'ACCEPTED')
+
+### lab-2-task-2-e
+
+      // SET DEFAULT NUMBER OF HINTS PER USER SESSION
+      sessionAttributes.hintsAvailable = 2;
+
+## Task 3. Updates String Messages
+
+    WELCOME_MESSAGE: 'Welcome to Name The Show!  I will give you the name of an actor or actress, and you have to tell me what television show I am thinking of. If you can\'t figure one out, you can purchase hints, and I\'ll give you the name of another actor from the same show. %s Ready for your first question?',
+    HELP_PROMPT: 'I give you the name of an actor or actress, and you have to tell me what television show I am thinking of.  You can buy hints if you need the name of a second or third actor...just ask!  Are you ready for a question?',
+
+    CANNOT_BUY_RIGHT_NOW: 'I am sorry. The hint pack is not available for purchase at this time.',
+    NO_HINTS_FOR_NOW: 'No hints for now.  Got it. %s',
+    THANK_YOU: 'Thanks for buying some hints! %s',
+    UNABLE_TO_SELL: 'It looks like we are unable to sell hints right now.  Sorry.  Maybe you\'ll get it this time anyways. %s',
+    UPSELL_MESSAGE: 'You don\'t currently have any hints available.  Would you like to know more about the five hint pack?',
+    CURRENTLY_UNAVAILABLE: 'I am sorry. That hint pack is not available for purchase at this time.',
+
+## Task 4. Deploy Updated Skill
+
+ask deploy
+
+## Task 5. Test Your Skill
+
+	open name the show

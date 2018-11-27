@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "type": "CONSUMABLE",
+  "referenceName": "Five_Hint_Pack",
+  "publishingInformation": {
+    "locales": {
+      "en-US": {
+        "name": "Five Hint Pack",
+        "smallIconUri": "https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_108.png",
+        "largeIconUri": "https://s3.amazonaws.com/ask-samples-resources/icons/moneyicon_512.png",
+        "summary": "The Five Hint Pack will give you five hints to help you solve our questions.",
+        "description": "The Five Hint Pack will give you five hints to help you solve our questions.",
+        "examplePhrases": [
+          "TODO: REPLACE THIS WITH SAMPLE UTTERANCE FOR HOW USERS WILL BUY OR INVOKE THIS PRODUCT - 'Alexa, buy product name'  Or 'Alexa, play product name'"
+        ],
+        "keywords": [
+          "TODO: REPLACE THIS WITH ARRAY OF KEYWORDS TO BE USED FOR SEARCH INDEXING THE PRODUCT"
+        ],
+        "customProductPrompts": {
+          "purchasePromptDescription": "This will give you five hints to help you solve our questions.",
+          "boughtCardDescription": "You have successfully purchased the five hint pack!"
+        }
+      }
+    },
+    "distributionCountries": [
+      "US"
+    ],
+    "pricing": {
+      "amazon.com": {
+        "releaseDate": "2018-10-01",
+        "defaultPriceListing": {
+          "price": 0.99,
+          "currency": "USD"
+        }
+      }
+    },
+    "taxInformation": {
+      "category": "SOFTWARE"
+    }
+  },
+  "privacyAndCompliance": {
+    "locales": {
+      "en-US": {
+        "privacyPolicyUrl": "https://localhost/privacy.html"
+      }
+    }
+  },
+  "testingInstructions": "TODO: REPLACE THIS WITH TESTING INSTRUCTIONS FOR THE CERTIFICATION TEAM SO THEY KNOW HOW TO PURCHASE AND USE THIS PRODUCT",
+  "purchasableState": "PURCHASABLE"
+}
